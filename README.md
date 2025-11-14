@@ -8,12 +8,30 @@ Visita: [https://fabianmv.github.io/gemini-models-health-checker](https://fabian
 
 ## 📋 Características
 
-- ✅ Verificación de modelos Gemini Flash y Gemini 2.5 Pro
+- ✅ Verificación de modelos Gemini 2.5 Flash y Gemini 2.5 Pro
 - ⚡ Medición de tiempos de respuesta en milisegundos
-- 👥 Soporte para múltiples API keys (Fabián Muñoz, Vicente Chacón, Custom)
-- 🔄 Auto-refresh cada 60 segundos
+- 👥 Soporte para múltiples API keys (Fabián Muñoz, Vicente Chacón)
+- 🔄 Auto-refresh cada 5 minutos
 - 🤖 GitHub Actions para monitoreo automatizado cada hora
 - 📊 Reportes automáticos en GitHub Actions
+- 🎯 **Verificación manual automática con un solo click** (con token de GitHub)
+- 📈 Gráficos interactivos con rangos de tiempo desde 5 minutos hasta 1 semana
+- ⏱️ Escala de tiempo real en gráficos
+
+## 🔑 Configuración de Verificación Automática
+
+Para usar el botón de verificación automática sin necesidad de ir a GitHub Actions:
+
+1. Ve a [GitHub Settings → Personal Access Tokens](https://github.com/settings/tokens/new)
+2. Crea un **Classic Token** (no Fine-grained)
+3. Selecciona el scope **`workflow`** (permite disparar GitHub Actions)
+4. Genera el token y cópialo
+5. En el dashboard, haz clic en "🔄 Ejecutar Verificación Automática"
+6. La primera vez te pedirá configurar el token
+7. Pega el token y guárdalo
+8. ¡Listo! Ahora puedes ejecutar verificaciones con un click
+
+El token se guarda en **localStorage** de tu navegador (solo tú lo tienes).
 
 ## 🔧 Modelos Monitoreados
 

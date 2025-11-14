@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trigger Workflow</title>
+</head>
+<body>
+    <h1>Configurar Token de GitHub</h1>
+    <p>Para usar esta función, necesitas crear un Personal Access Token en GitHub:</p>
+    <ol>
+        <li>Ve a <a href="https://github.com/settings/tokens/new" target="_blank">GitHub Settings → Personal Access Tokens</a></li>
+        <li>Crea un token con el scope <code>workflow</code></li>
+        <li>Copia el token y pégalo aquí:</li>
+    </ol>
+    <input type="text" id="tokenInput" placeholder="ghp_xxxxxxxxxxxx" style="width: 400px; padding: 8px;">
+    <button onclick="saveToken()">Guardar Token</button>
+    <p id="status"></p>
+
+    <script>
+        function saveToken() {
+            const token = document.getElementById('tokenInput').value;
+            if (token) {
+                localStorage.setItem('github_token', token);
+                document.getElementById('status').textContent = '✅ Token guardado. Vuelve al dashboard.';
+                document.getElementById('status').style.color = 'green';
+            } else {
+                document.getElementById('status').textContent = '❌ Por favor ingresa un token válido';
+                document.getElementById('status').style.color = 'red';
+            }
+        }
+
+        // Mostrar si ya hay un token guardado
+        if (localStorage.getItem('github_token')) {
+            document.getElementById('status').textContent = '✅ Ya tienes un token guardado';
+            document.getElementById('status').style.color = 'green';
+        }
+    </script>
+</body>
+</html>

@@ -382,13 +382,13 @@
             </div>
         </div>
 
-        <button class="check-button" id="refreshBtn" title="Ejecuta una verificación manual de las APIs de Gemini">
-            🔄 Ejecutar Verificación Manual
+        <button class="check-button" id="refreshBtn" title="Ejecuta una verificación automática de las APIs de Gemini">
+            🔄 Ejecutar Verificación Automática
         </button>
         
         <div style="text-align: center; margin-top: 10px;">
             <small style="color: #999;">
-                Esto ejecutará el workflow de GitHub Actions (~1 minuto)
+                Click para disparar verificación inmediata (~1 minuto)
             </small>
         </div>
 
@@ -481,81 +481,124 @@
         // Event listener para el botón de refresh
         document.getElementById('refreshBtn').addEventListener('click', async () => {
             const btn = document.getElementById('refreshBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Iniciando verificación...';
             
-            // Abrir GitHub Actions en nueva pestaña para que el usuario ejecute el workflow
-            const githubActionsUrl = 'https://github.com/FabianIMV/gemini-models-health-checker/actions/workflows/health-check.yml';
-            window.open(githubActionsUrl, '_blank');
+            // Intentar disparar el workflow automáticamente
+            const token = localStorage.getItem('github_token');
             
-            // Mostrar instrucciones
-            if (confirm('Se abrirá GitHub Actions en una nueva pestaña.\n\n1. Haz clic en "Run workflow" → "Run workflow"\n2. Vuelve a esta pestaña\n3. Esperaremos 60 segundos y cargaremos los nuevos resultados\n\n¿Continuar?')) {
-                btn.disabled = true;
+            if (!token) {
+                // Si no hay token, preguntar si quiere configurarlo
+                const configure = confirm('Para ejecutar verificaciones automáticas, necesitas configurar un token de GitHub.\n\n¿Quieres configurarlo ahora?\n\n(Si dices "No", se abrirá GitHub Actions para ejecución manual)');
+                if (configure) {
+                    window.open('trigger-workflow.html', '_blank');
+                    btn.disabled = false;
+                    btn.innerHTML = '🔄 Ejecutar Verificación Manual';
+                    return;
+                } else {
+                    // Modo manual (abrir GitHub Actions)
+                    window.open('https://github.com/FabianIMV/gemini-models-health-checker/actions/workflows/health-check.yml', '_blank');
+                    alert('Haz clic en "Run workflow" → "Run workflow" en la nueva pestaña.\n\nLuego vuelve aquí y haz clic en el botón nuevamente para cargar los resultados.');
+                    btn.disabled = false;
+                    btn.innerHTML = '🔄 Ejecutar Verificación Manual';
+                    return;
+                }
+            }
+            
+            // Disparar el workflow usando GitHub API
+            try {
+                const response = await fetch('https://api.github.com/repos/FabianIMV/gemini-models-health-checker/actions/workflows/health-check.yml/dispatches', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ref: 'main'
+                    })
+                });
                 
-                // Esperar 60 segundos con countdown
-                let countdown = 60;
-                btn.innerHTML = `<span class="spinner"></span> Esperando resultados (${countdown}s)...`;
-                
-                const countdownInterval = setInterval(() => {
-                    countdown--;
-                    if (countdown > 0) {
-                        btn.innerHTML = `<span class="spinner"></span> Esperando resultados (${countdown}s)...`;
-                    }
-                }, 1000);
-                
-                // Después de 60 segundos, intentar recargar cada 5 segundos
-                setTimeout(async () => {
-                    clearInterval(countdownInterval);
-                    btn.innerHTML = '<span class="spinner"></span> Obteniendo resultados...';
+                if (response.status === 204) {
+                    // Workflow disparado exitosamente
+                    btn.innerHTML = '<span class="spinner"></span> Verificación iniciada...';
                     
-                    let attempts = 0;
-                    const maxAttempts = 6; // 6 intentos = 30 segundos más
+                    // Esperar 60 segundos con countdown
+                    let countdown = 60;
+                    const countdownInterval = setInterval(() => {
+                        countdown--;
+                        if (countdown > 0) {
+                            btn.innerHTML = `<span class="spinner"></span> Ejecutando workflow (${countdown}s)...`;
+                        }
+                    }, 1000);
                     
-                    const checkForUpdates = async () => {
-                        try {
-                            const oldTimestamp = document.getElementById('lastCheck').textContent;
-                            await loadStatus();
-                            await loadHistory();
-                            const newTimestamp = document.getElementById('lastCheck').textContent;
-                            
-                            if (oldTimestamp !== newTimestamp) {
-                                // Los datos se actualizaron
-                                btn.disabled = false;
-                                btn.innerHTML = '🔄 Ejecutar Verificación Manual';
+                    // Después de 60 segundos, intentar recargar cada 5 segundos
+                    setTimeout(async () => {
+                        clearInterval(countdownInterval);
+                        btn.innerHTML = '<span class="spinner"></span> Obteniendo resultados...';
+                        
+                        let attempts = 0;
+                        const maxAttempts = 6;
+                        
+                        const checkForUpdates = async () => {
+                            try {
+                                const oldTimestamp = document.getElementById('lastCheck').textContent;
+                                await loadStatus();
+                                await loadHistory();
+                                const newTimestamp = document.getElementById('lastCheck').textContent;
                                 
-                                const lastCheckEl = document.getElementById('lastCheck');
-                                lastCheckEl.textContent = '✅ Estado actualizado correctamente - ' + newTimestamp.replace('Última verificación: ', '');
-                                lastCheckEl.style.color = '#4caf50';
-                                lastCheckEl.style.fontWeight = '600';
-                                
-                                setTimeout(() => {
-                                    lastCheckEl.style.color = '';
-                                    lastCheckEl.style.fontWeight = '';
-                                }, 5000);
-                            } else {
-                                // Los datos no se actualizaron aún
+                                if (oldTimestamp !== newTimestamp) {
+                                    btn.disabled = false;
+                                    btn.innerHTML = '🔄 Ejecutar Verificación Manual';
+                                    
+                                    const lastCheckEl = document.getElementById('lastCheck');
+                                    lastCheckEl.textContent = '✅ Verificación completada - ' + newTimestamp.replace('Última verificación: ', '');
+                                    lastCheckEl.style.color = '#4caf50';
+                                    lastCheckEl.style.fontWeight = '600';
+                                    
+                                    setTimeout(() => {
+                                        lastCheckEl.style.color = '';
+                                        lastCheckEl.style.fontWeight = '';
+                                    }, 5000);
+                                } else {
+                                    attempts++;
+                                    if (attempts < maxAttempts) {
+                                        btn.innerHTML = `<span class="spinner"></span> Esperando actualización (${attempts}/${maxAttempts})...`;
+                                        setTimeout(checkForUpdates, 5000);
+                                    } else {
+                                        btn.disabled = false;
+                                        btn.innerHTML = '🔄 Ejecutar Verificación Manual';
+                                        alert('El workflow está tardando más de lo esperado. Los resultados se actualizarán automáticamente cada 5 minutos.');
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Error checking updates:', error);
                                 attempts++;
                                 if (attempts < maxAttempts) {
-                                    btn.innerHTML = `<span class="spinner"></span> Reintentando (${attempts}/${maxAttempts})...`;
                                     setTimeout(checkForUpdates, 5000);
                                 } else {
                                     btn.disabled = false;
                                     btn.innerHTML = '🔄 Ejecutar Verificación Manual';
-                                    alert('No se detectaron cambios. El workflow puede estar tardando más de lo esperado. Intenta recargar la página en unos minutos.');
                                 }
                             }
-                        } catch (error) {
-                            console.error('Error checking updates:', error);
-                            attempts++;
-                            if (attempts < maxAttempts) {
-                                setTimeout(checkForUpdates, 5000);
-                            } else {
-                                btn.disabled = false;
-                                btn.innerHTML = '🔄 Ejecutar Verificación Manual';
-                            }
-                        }
-                    };
-                    
-                    await checkForUpdates();
-                }, 60000);
+                        };
+                        
+                        await checkForUpdates();
+                    }, 60000);
+                } else if (response.status === 401) {
+                    // Token inválido o expirado
+                    localStorage.removeItem('github_token');
+                    btn.disabled = false;
+                    btn.innerHTML = '🔄 Ejecutar Verificación Manual';
+                    alert('⚠️ Token de GitHub inválido o expirado.\n\nPor favor, configura un nuevo token haciendo clic nuevamente en el botón.');
+                } else {
+                    throw new Error(`GitHub API error: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Error triggering workflow:', error);
+                btn.disabled = false;
+                btn.innerHTML = '🔄 Ejecutar Verificación Manual';
+                alert('❌ Error al ejecutar la verificación automática.\n\nPuedes:\n1. Intentar nuevamente\n2. Reconfigurar el token\n3. Ejecutar manualmente en GitHub Actions');
             }
         });
 

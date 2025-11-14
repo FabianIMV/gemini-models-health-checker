@@ -481,14 +481,113 @@
 
         // Event listener para el botón de refresh
         document.getElementById('refreshBtn').addEventListener('click', async () => {
-            // Abrir GitHub Actions para ejecutar workflow manualmente
-            window.open('https://github.com/FabianIMV/gemini-models-health-checker/actions/workflows/health-check.yml', '_blank');
-            
             const btn = document.getElementById('refreshBtn');
+            const token = localStorage.getItem('github_token');
             
-            // Mostrar instrucciones simples
-            alert('✅ Se abrió GitHub Actions en una nueva pestaña.\n\n📋 Pasos sencillos:\n\n1️⃣ Click en "Run workflow" (botón gris/verde)\n2️⃣ Click en "Run workflow" (botón verde en el modal)\n3️⃣ Espera ~1 minuto\n4️⃣ Recarga esta página (F5)\n\n¡Listo! Verás los datos actualizados.');
+            // Si ya tiene token configurado, usar automáticamente
+            if (token) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner"></span> Verificando APIs...';
+                
+                try {
+                    const response = await fetch('https://api.github.com/repos/FabianIMV/gemini-models-health-checker/actions/workflows/health-check.yml/dispatches', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ ref: 'main' })
+                    });
+                    
+                    if (response.status === 204) {
+                        // Workflow disparado exitosamente
+                        btn.innerHTML = '<span class="spinner"></span> Esperando resultados...';
+                        
+                        // Esperar 65 segundos y recargar
+                        setTimeout(async () => {
+                            await loadStatus();
+                            await loadHistory();
+                            btn.disabled = false;
+                            btn.innerHTML = '🔄 Verificar APIs Ahora';
+                            
+                            const lastCheckEl = document.getElementById('lastCheck');
+                            lastCheckEl.textContent = '✅ ¡Verificación completada! - ' + lastCheckEl.textContent.replace('Última verificación: ', '');
+                            lastCheckEl.style.color = '#4caf50';
+                            lastCheckEl.style.fontWeight = '600';
+                            
+                            setTimeout(() => {
+                                lastCheckEl.style.color = '';
+                                lastCheckEl.style.fontWeight = '';
+                            }, 5000);
+                        }, 65000);
+                    } else if (response.status === 401) {
+                        localStorage.removeItem('github_token');
+                        throw new Error('Token expirado');
+                    } else {
+                        throw new Error('Error en GitHub API');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    btn.disabled = false;
+                    btn.innerHTML = '🔄 Verificar APIs Ahora';
+                    
+                    if (confirm('⚠️ El token automático falló o no está configurado.\n\n¿Quieres configurarlo AHORA (toma 2 minutos) para que funcione automático siempre?\n\n✅ Click "Aceptar" para configurar\n❌ Click "Cancelar" para hacer manual')) {
+                        mostrarInstruccionesToken();
+                    } else {
+                        window.open('https://github.com/FabianIMV/gemini-models-health-checker/actions/workflows/health-check.yml', '_blank');
+                        alert('📋 Instrucciones:\n\n1️⃣ Click "Run workflow"\n2️⃣ Click "Run workflow" en el modal\n3️⃣ Espera 1 minuto\n4️⃣ Recarga esta página (F5)');
+                    }
+                }
+            } else {
+                // Primera vez - ofrecer configurar token
+                if (confirm('🚀 ¿Quieres activar verificación AUTOMÁTICA?\n\n✅ Con 1 click ejecutará verificación (toma 2 min configurar)\n❌ O hacerlo manual cada vez (2 clicks en GitHub)\n\n¿Activar automático?')) {
+                    mostrarInstruccionesToken();
+                } else {
+                    window.open('https://github.com/FabianIMV/gemini-models-health-checker/actions/workflows/health-check.yml', '_blank');
+                    alert('📋 Instrucciones:\n\n1️⃣ Click "Run workflow"\n2️⃣ Click "Run workflow" en el modal\n3️⃣ Espera 1 minuto\n4️⃣ Recarga esta página (F5)');
+                }
+            }
         });
+        
+        function mostrarInstruccionesToken() {
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;';
+            modal.innerHTML = `
+                <div style="background:white;padding:30px;border-radius:15px;max-width:500px;width:100%;">
+                    <h2 style="margin:0 0 20px 0;color:#333;">🔑 Configuración Rápida (2 minutos)</h2>
+                    <ol style="text-align:left;line-height:1.8;color:#666;">
+                        <li>Abre: <a href="https://github.com/settings/tokens/new" target="_blank" style="color:#667eea;">github.com/settings/tokens/new</a></li>
+                        <li>Nombre: <code>Health Checker</code></li>
+                        <li>✅ Marca el checkbox <strong>"workflow"</strong></li>
+                        <li>Click "Generate token" abajo</li>
+                        <li>Copia el token (ghp_...)</li>
+                        <li>Pégalo aquí:</li>
+                    </ol>
+                    <input type="text" id="tokenInput" placeholder="ghp_xxxxxxxxxxxx" style="width:100%;padding:12px;margin:10px 0;border:2px solid #e0e0e0;border-radius:8px;font-size:14px;">
+                    <div style="display:flex;gap:10px;margin-top:20px;">
+                        <button onclick="guardarToken()" style="flex:1;padding:12px;background:#667eea;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;">✅ Guardar y Activar</button>
+                        <button onclick="cerrarModal()" style="flex:1;padding:12px;background:#e0e0e0;color:#666;border:none;border-radius:8px;cursor:pointer;font-weight:600;">❌ Cancelar</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            window.guardarToken = () => {
+                const token = document.getElementById('tokenInput').value.trim();
+                if (token && token.startsWith('ghp_')) {
+                    localStorage.setItem('github_token', token);
+                    document.body.removeChild(modal);
+                    alert('✅ ¡Configuración completada!\n\nAhora el botón funcionará automáticamente. Pruébalo haciendo click nuevamente.');
+                } else {
+                    alert('⚠️ Token inválido. Debe empezar con "ghp_"');
+                }
+            };
+            
+            window.cerrarModal = () => {
+                document.body.removeChild(modal);
+            };
+        }
 
         // Cargar historial y crear gráfica
         let historyChart = null;

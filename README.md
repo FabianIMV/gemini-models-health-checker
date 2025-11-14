@@ -55,15 +55,21 @@ Ve a `Settings` → `Secrets and variables` → `Actions` y agrega:
 ### Ejecución Automática
 
 El workflow se ejecuta:
-- ⏰ **Cada hora** automáticamente
+- ⏰ **Cada hora** automáticamente (genera historial)
 - 🔄 **En cada push** a la rama `main`
 - ▶️ **Manualmente** desde la pestaña "Actions" en GitHub
 
 ### Ver Resultados
 
-1. Ve a la pestaña **"Actions"** en GitHub
-2. Selecciona el workflow más reciente
-3. Revisa el **"Summary"** para ver el reporte de estado
+1. **Sitio web:** https://fabianmv.github.io/gemini-models-health-checker
+   - Estado actual de todas las API keys
+   - Gráfica de historial de últimas 24 horas
+   - Actualización automática cada 5 minutos
+
+2. **GitHub Actions:**
+   - Ve a la pestaña **"Actions"** en GitHub
+   - Selecciona el workflow más reciente
+   - Revisa el **"Summary"** para ver el reporte de estado
 
 ## 📁 Estructura del Proyecto
 

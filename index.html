@@ -394,6 +394,33 @@
 
         <div class="last-check" id="lastCheck"></div>
 
+        <!-- Uptime Statistics Section -->
+        <div style="margin: 40px 0 30px 0;">
+            <h3 style="color: #333; font-size: 16px; margin-bottom: 20px;">📈 Estadísticas de Disponibilidad</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; color: white;">
+                    <div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">Fabián - Flash</div>
+                    <div style="font-size: 28px; font-weight: 700;" id="uptime-fabian-flash">--</div>
+                    <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">Uptime</div>
+                </div>
+                <div style="background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); border-radius: 12px; padding: 20px; color: white;">
+                    <div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">Fabián - Pro</div>
+                    <div style="font-size: 28px; font-weight: 700;" id="uptime-fabian-pro">--</div>
+                    <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">Uptime</div>
+                </div>
+                <div style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); border-radius: 12px; padding: 20px; color: white;">
+                    <div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">Vicente - Flash</div>
+                    <div style="font-size: 28px; font-weight: 700;" id="uptime-vicente-flash">--</div>
+                    <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">Uptime</div>
+                </div>
+                <div style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); border-radius: 12px; padding: 20px; color: white;">
+                    <div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">Vicente - Pro</div>
+                    <div style="font-size: 28px; font-weight: 700;" id="uptime-vicente-pro">--</div>
+                    <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">Uptime</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Historical Data Section -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin: 40px 0 20px 0;">
             <h3 style="color: #333; font-size: 16px; margin: 0;">📊 Historial de Tiempo de Respuesta</h3>
@@ -410,7 +437,7 @@
             </select>
         </div>
         <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-            <canvas id="historyChart" height="100"></canvas>
+            <canvas id="historyChart" height="150"></canvas>
         </div>
 
         <div class="footer">
@@ -762,9 +789,51 @@
             }
         }
 
+        // Función para calcular uptime
+        function calculateUptime(history, owner, model) {
+            if (!history || history.length === 0) return 0;
+            
+            let onlineCount = 0;
+            let totalCount = 0;
+            
+            history.forEach(entry => {
+                if (entry[owner] && entry[owner][model]) {
+                    totalCount++;
+                    if (entry[owner][model].status === 'online') {
+                        onlineCount++;
+                    }
+                }
+            });
+            
+            return totalCount > 0 ? ((onlineCount / totalCount) * 100).toFixed(1) : 0;
+        }
+        
+        // Función para actualizar estadísticas de uptime
+        function updateUptimeStats() {
+            const timeRange = parseInt(document.getElementById('timeRangePicker').value);
+            const now = new Date();
+            const cutoffTime = new Date(now.getTime() - (timeRange * 60 * 1000));
+            
+            const filteredHistory = fullHistory.filter(h => {
+                const entryTime = new Date(h.timestamp);
+                return entryTime >= cutoffTime;
+            });
+            
+            // Calcular y actualizar uptime para cada modelo
+            document.getElementById('uptime-fabian-flash').textContent = 
+                calculateUptime(filteredHistory, 'fabian', 'flash') + '%';
+            document.getElementById('uptime-fabian-pro').textContent = 
+                calculateUptime(filteredHistory, 'fabian', 'pro') + '%';
+            document.getElementById('uptime-vicente-flash').textContent = 
+                calculateUptime(filteredHistory, 'vicente', 'flash') + '%';
+            document.getElementById('uptime-vicente-pro').textContent = 
+                calculateUptime(filteredHistory, 'vicente', 'pro') + '%';
+        }
+        
         // Event listener para el selector de tiempo
         document.getElementById('timeRangePicker').addEventListener('change', () => {
             renderChart();
+            updateUptimeStats();
         });
 
         // Cargar estado e historial al iniciar
@@ -776,6 +845,13 @@
             loadStatus();
             loadHistory();
         }, 5 * 60 * 1000);
+        
+        // Actualizar estadísticas cuando se carga el historial
+        const originalLoadHistory = loadHistory;
+        loadHistory = function() {
+            originalLoadHistory();
+            setTimeout(updateUptimeStats, 100);
+        };
     </script>
 </body>
 </html>

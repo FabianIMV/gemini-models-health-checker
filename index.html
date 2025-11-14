@@ -266,6 +266,16 @@
             to { transform: rotate(360deg); }
         }
 
+        #timeRangePicker:hover {
+            border-color: #667eea;
+        }
+
+        #timeRangePicker:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
         @media (max-width: 600px) {
             .models-grid {
                 grid-template-columns: 1fr;
@@ -273,6 +283,11 @@
             
             .container {
                 padding: 30px 20px;
+            }
+
+            #timeRangePicker {
+                font-size: 12px;
+                padding: 6px 12px;
             }
         }
 
@@ -374,7 +389,16 @@
         <div class="last-check" id="lastCheck"></div>
 
         <!-- Historical Data Section -->
-        <h3 style="color: #333; font-size: 16px; margin: 40px 0 20px 0;">📊 Historial (Últimas 24 horas)</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 40px 0 20px 0;">
+            <h3 style="color: #333; font-size: 16px; margin: 0;">📊 Historial de Tiempo de Respuesta</h3>
+            <select id="timeRangePicker" style="padding: 8px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; background: white; color: #333;">
+                <option value="5">Últimos 5 min</option>
+                <option value="60">Última hora</option>
+                <option value="360">Últimas 6 horas</option>
+                <option value="1440" selected>Último día</option>
+                <option value="10080">Última semana</option>
+            </select>
+        </div>
         <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
             <canvas id="historyChart" height="100"></canvas>
         </div>
@@ -458,53 +482,83 @@
 
         // Cargar historial y crear gráfica
         let historyChart = null;
+        let fullHistory = [];
         
         async function loadHistory() {
             try {
                 const response = await fetch('history.json?' + new Date().getTime());
-                const history = await response.json();
+                fullHistory = await response.json();
                 
-                // Tomar últimas 24 entradas (24 horas si se ejecuta cada hora)
-                const last24 = history.slice(-24);
+                // Renderizar con el rango de tiempo seleccionado
+                renderChart();
+                
+            } catch (error) {
+                console.error('Error cargando historial:', error);
+            }
+        }
+
+        function renderChart() {
+            try {
+                // Obtener el rango de tiempo seleccionado (en minutos)
+                const timeRange = parseInt(document.getElementById('timeRangePicker').value);
+                
+                // Calcular cuántas entradas necesitamos (cada entrada = 1 hora)
+                const entriesNeeded = Math.ceil(timeRange / 60);
+                
+                // Tomar las últimas N entradas según el rango seleccionado
+                const filteredHistory = fullHistory.slice(-entriesNeeded);
                 
                 // Preparar datos para la gráfica
-                const labels = last24.map(h => {
+                const labels = filteredHistory.map(h => {
                     const date = new Date(h.timestamp);
-                    return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                    const timeRange = parseInt(document.getElementById('timeRangePicker').value);
+                    
+                    // Formato de fecha dependiendo del rango
+                    if (timeRange <= 60) { // 5 min o 1 hora
+                        return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                    } else if (timeRange <= 1440) { // 6 horas o 1 día
+                        return date.toLocaleString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    } else { // 1 semana
+                        return date.toLocaleString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit' });
+                    }
                 });
                 
                 const datasets = [
                     {
                         label: 'Fabián - Gemini 2.5 Pro',
-                        data: last24.map(h => h.fabian.pro.status === 'online' ? h.fabian.pro.responseTime : 0),
+                        data: filteredHistory.map(h => h.fabian.pro.status === 'online' ? h.fabian.pro.responseTime : null),
                         borderColor: '#667eea',
                         backgroundColor: 'rgba(102, 126, 234, 0.1)',
                         tension: 0.4,
-                        pointRadius: 3
+                        pointRadius: 3,
+                        spanGaps: true
                     },
                     {
                         label: 'Fabián - Gemini 2.5 Flash',
-                        data: last24.map(h => h.fabian.flash && h.fabian.flash.status === 'online' ? h.fabian.flash.responseTime : 0),
+                        data: filteredHistory.map(h => h.fabian.flash && h.fabian.flash.status === 'online' ? h.fabian.flash.responseTime : null),
                         borderColor: '#764ba2',
                         backgroundColor: 'rgba(118, 75, 162, 0.1)',
                         tension: 0.4,
-                        pointRadius: 3
+                        pointRadius: 3,
+                        spanGaps: true
                     },
                     {
                         label: 'Vicente - Gemini 2.5 Pro',
-                        data: last24.map(h => h.vicente.pro.status === 'online' ? h.vicente.pro.responseTime : 0),
+                        data: filteredHistory.map(h => h.vicente.pro.status === 'online' ? h.vicente.pro.responseTime : null),
                         borderColor: '#4caf50',
                         backgroundColor: 'rgba(76, 175, 80, 0.1)',
                         tension: 0.4,
-                        pointRadius: 3
+                        pointRadius: 3,
+                        spanGaps: true
                     },
                     {
                         label: 'Vicente - Gemini 2.5 Flash',
-                        data: last24.map(h => h.vicente.flash && h.vicente.flash.status === 'online' ? h.vicente.flash.responseTime : 0),
+                        data: filteredHistory.map(h => h.vicente.flash && h.vicente.flash.status === 'online' ? h.vicente.flash.responseTime : null),
                         borderColor: '#ffc107',
                         backgroundColor: 'rgba(255, 193, 7, 0.1)',
                         tension: 0.4,
-                        pointRadius: 3
+                        pointRadius: 3,
+                        spanGaps: true
                     }
                 ];
                 
@@ -526,12 +580,27 @@
                         maintainAspectRatio: true,
                         plugins: {
                             title: {
-                                display: true,
-                                text: 'Tiempo de Respuesta (ms) - Últimas 24 horas'
+                                display: false
                             },
                             legend: {
                                 display: true,
                                 position: 'bottom'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += context.parsed.y + 'ms';
+                                        } else {
+                                            label += 'Offline';
+                                        }
+                                        return label;
+                                    }
+                                }
                             }
                         },
                         scales: {
@@ -553,9 +622,14 @@
                 });
                 
             } catch (error) {
-                console.error('Error cargando historial:', error);
+                console.error('Error renderizando gráfica:', error);
             }
         }
+
+        // Event listener para el selector de tiempo
+        document.getElementById('timeRangePicker').addEventListener('change', () => {
+            renderChart();
+        });
 
         // Cargar estado e historial al iniciar
         loadStatus();

@@ -1,6 +1,18 @@
 {
-  "timestamp": "2025-11-14T16:14:57.544Z",
+  "timestamp": "2025-11-14T16:17:50.686Z",
   "fabian": {
+    "flash": {
+      "status": "online",
+      "responseTime": 7283,
+      "error": ""
+    },
+    "pro": {
+      "status": "online",
+      "responseTime": 30096,
+      "error": ""
+    }
+  },
+  "vicente": {
     "flash": {
       "status": "offline",
       "responseTime": 0,
@@ -8,19 +20,7 @@
     },
     "pro": {
       "status": "online",
-      "responseTime": 13443,
-      "error": ""
-    }
-  },
-  "vicente": {
-    "flash": {
-      "status": "online",
-      "responseTime": 2169,
-      "error": ""
-    },
-    "pro": {
-      "status": "online",
-      "responseTime": 12000,
+      "responseTime": 18144,
       "error": ""
     }
   }

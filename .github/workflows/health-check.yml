@@ -11,6 +11,8 @@ on:
 jobs:
   check-gemini-api:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Permiso para hacer push
     
     steps:
       - name: Checkout code

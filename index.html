@@ -417,6 +417,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script>
         // Cargar el estado desde el JSON generado por GitHub Actions
         async function loadStatus() {
@@ -600,25 +601,8 @@
                     return;
                 }
                 
-                // Preparar datos para la gráfica
-                const labels = filteredHistory.map(h => {
-                    const date = new Date(h.timestamp);
-                    
-                    // Formato de fecha dependiendo del rango
-                    if (timeRange <= 720) { // Hasta 12 horas
-                        return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-                    } else if (timeRange <= 1440) { // 24 horas
-                        const now = new Date();
-                        const isToday = date.toDateString() === now.toDateString();
-                        if (isToday) {
-                            return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-                        } else {
-                            return date.toLocaleString('es-ES', { day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                        }
-                    } else { // Más de 1 día
-                        return date.toLocaleString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit' });
-                    }
-                });
+                // Preparar datos para la gráfica con timestamps reales
+                const labels = filteredHistory.map(h => new Date(h.timestamp).getTime());
                 
                 const datasets = [
                     {
@@ -706,12 +690,32 @@
                                 title: {
                                     display: true,
                                     text: 'Tiempo de respuesta (ms)'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + 'ms';
+                                    }
                                 }
                             },
                             x: {
+                                type: 'time',
+                                time: {
+                                    unit: timeRange <= 720 ? 'hour' : (timeRange <= 1440 ? 'hour' : 'day'),
+                                    displayFormats: {
+                                        hour: 'HH:mm',
+                                        day: 'MMM dd'
+                                    },
+                                    tooltipFormat: 'MMM dd, HH:mm'
+                                },
+                                min: cutoffTime.getTime(),
+                                max: now.getTime(),
                                 title: {
                                     display: true,
-                                    text: 'Hora'
+                                    text: 'Tiempo'
+                                },
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45
                                 }
                             }
                         }

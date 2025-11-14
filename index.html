@@ -373,12 +373,19 @@
 
         <div class="last-check" id="lastCheck"></div>
 
+        <!-- Historical Data Section -->
+        <h3 style="color: #333; font-size: 16px; margin: 40px 0 20px 0;">📊 Historial (Últimas 24 horas)</h3>
+        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+            <canvas id="historyChart" height="100"></canvas>
+        </div>
+
         <div class="footer">
             Hecho por <a href="https://github.com/FabianIMV" target="_blank">Fabián Muñoz</a> • 
             <a href="https://github.com/FabianIMV/gemini-models-health-checker" target="_blank">GitHub</a>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         // Cargar el estado desde el JSON generado por GitHub Actions
         async function loadStatus() {
@@ -449,11 +456,116 @@
             });
         });
 
-        // Cargar estado al iniciar
+        // Cargar historial y crear gráfica
+        let historyChart = null;
+        
+        async function loadHistory() {
+            try {
+                const response = await fetch('history.json?' + new Date().getTime());
+                const history = await response.json();
+                
+                // Tomar últimas 24 entradas (24 horas si se ejecuta cada hora)
+                const last24 = history.slice(-24);
+                
+                // Preparar datos para la gráfica
+                const labels = last24.map(h => {
+                    const date = new Date(h.timestamp);
+                    return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                });
+                
+                const datasets = [
+                    {
+                        label: 'Fabián - Gemini Pro',
+                        data: last24.map(h => h.fabian.pro.status === 'online' ? h.fabian.pro.responseTime : 0),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 3
+                    },
+                    {
+                        label: 'Fabián - Flash',
+                        data: last24.map(h => h.fabian.flash.status === 'online' ? h.fabian.flash.responseTime : 0),
+                        borderColor: '#764ba2',
+                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 3
+                    },
+                    {
+                        label: 'Vicente - Gemini Pro',
+                        data: last24.map(h => h.vicente.pro.status === 'online' ? h.vicente.pro.responseTime : 0),
+                        borderColor: '#4caf50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 3
+                    },
+                    {
+                        label: 'Vicente - Flash',
+                        data: last24.map(h => h.vicente.flash.status === 'online' ? h.vicente.flash.responseTime : 0),
+                        borderColor: '#ffc107',
+                        backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 3
+                    }
+                ];
+                
+                // Destruir gráfica anterior si existe
+                if (historyChart) {
+                    historyChart.destroy();
+                }
+                
+                // Crear nueva gráfica
+                const ctx = document.getElementById('historyChart').getContext('2d');
+                historyChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Tiempo de Respuesta (ms) - Últimas 24 horas'
+                            },
+                            legend: {
+                                display: true,
+                                position: 'bottom'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Tiempo de respuesta (ms)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Hora'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error cargando historial:', error);
+            }
+        }
+
+        // Cargar estado e historial al iniciar
         loadStatus();
+        loadHistory();
         
         // Auto-refresh cada 5 minutos
-        setInterval(loadStatus, 5 * 60 * 1000);
+        setInterval(() => {
+            loadStatus();
+            loadHistory();
+        }, 5 * 60 * 1000);
     </script>
 </body>
 </html>

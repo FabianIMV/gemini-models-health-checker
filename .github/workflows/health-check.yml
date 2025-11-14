@@ -22,159 +22,38 @@ jobs:
           node-version: '20'
       
       - name: Install dependencies
-        run: |
-          npm install @google/generative-ai
+        run: npm install @google/generative-ai
       
-      - name: Check Gemini Flash (Fabián)
-        id: check-flash-fabian
-        continue-on-error: true
-        run: |
-          node -e "
-          const { GoogleGenerativeAI } = require('@google/generative-ai');
-          
-          async function check() {
-            try {
-              const genAI = new GoogleGenerativeAI('${{ secrets.GEMINI_API_KEY_FABIAN }}');
-              const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-002' });
-              const start = Date.now();
-              const result = await model.generateContent('OK');
-              const time = Date.now() - start;
-              console.log('✅ Gemini Flash (Fabián): DISPONIBLE (${time}ms)');
-              process.exit(0);
-            } catch (error) {
-              console.log('❌ Gemini Flash (Fabián): ERROR -', error.message);
-              process.exit(1);
-            }
-          }
-          check();
-          "
+      - name: Run health check
+        env:
+          GEMINI_API_KEY_FABIAN: ${{ secrets.GEMINI_API_KEY_FABIAN }}
+          GEMINI_API_KEY_VICENTE: ${{ secrets.GEMINI_API_KEY_VICENTE }}
+        run: node check-health.js
       
-      - name: Check Gemini Pro (Fabián)
-        id: check-pro-fabian
-        continue-on-error: true
-        run: |
-          node -e "
-          const { GoogleGenerativeAI } = require('@google/generative-ai');
-          
-          async function check() {
-            try {
-              const genAI = new GoogleGenerativeAI('${{ secrets.GEMINI_API_KEY_FABIAN }}');
-              const model = genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
-              const start = Date.now();
-              const result = await model.generateContent('OK');
-              const time = Date.now() - start;
-              console.log('✅ Gemini 2.5 Pro (Fabián): DISPONIBLE (${time}ms)');
-              process.exit(0);
-            } catch (error) {
-              console.log('❌ Gemini 2.5 Pro (Fabián): ERROR -', error.message);
-              process.exit(1);
-            }
-          }
-          check();
-          "
-      
-      - name: Check Gemini Flash (Vicente)
-        id: check-flash-vicente
-        if: ${{ secrets.GEMINI_API_KEY_VICENTE != '' }}
-        continue-on-error: true
-        run: |
-          node -e "
-          const { GoogleGenerativeAI } = require('@google/generative-ai');
-          
-          async function check() {
-            try {
-              const genAI = new GoogleGenerativeAI('${{ secrets.GEMINI_API_KEY_VICENTE }}');
-              const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-002' });
-              const start = Date.now();
-              const result = await model.generateContent('OK');
-              const time = Date.now() - start;
-              console.log('✅ Gemini Flash (Vicente): DISPONIBLE (${time}ms)');
-              process.exit(0);
-            } catch (error) {
-              console.log('❌ Gemini Flash (Vicente): ERROR -', error.message);
-              process.exit(1);
-            }
-          }
-          check();
-          "
-      
-      - name: Check Gemini Pro (Vicente)
-        id: check-pro-vicente
-        if: ${{ secrets.GEMINI_API_KEY_VICENTE != '' }}
-        continue-on-error: true
-        run: |
-          node -e "
-          const { GoogleGenerativeAI } = require('@google/generative-ai');
-          
-          async function check() {
-            try {
-              const genAI = new GoogleGenerativeAI('${{ secrets.GEMINI_API_KEY_VICENTE }}');
-              const model = genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
-              const start = Date.now();
-              const result = await model.generateContent('OK');
-              const time = Date.now() - start;
-              console.log('✅ Gemini 2.5 Pro (Vicente): DISPONIBLE (${time}ms)');
-              process.exit(0);
-            } catch (error) {
-              console.log('❌ Gemini 2.5 Pro (Vicente): ERROR -', error.message);
-              process.exit(1);
-            }
-          }
-          check();
-          "
-      
-      - name: Generate Status JSON
-        if: always()
-        run: |
-          cat > status.json << 'EOF'
-          {
-            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "fabian": {
-              "flash": {
-                "status": "${{ steps.check-flash-fabian.outcome == 'success' && 'online' || 'offline' }}",
-                "responseTime": "${{ steps.check-flash-fabian.outcome == 'success' && '1234' || '0' }}",
-                "error": "${{ steps.check-flash-fabian.outcome == 'failure' && 'Ver logs de GitHub Actions' || '' }}"
-              },
-              "pro": {
-                "status": "${{ steps.check-pro-fabian.outcome == 'success' && 'online' || 'offline' }}",
-                "responseTime": "${{ steps.check-pro-fabian.outcome == 'success' && '2345' || '0' }}",
-                "error": "${{ steps.check-pro-fabian.outcome == 'failure' && 'Ver logs de GitHub Actions' || '' }}"
-              }
-            },
-            "vicente": {
-              "flash": {
-                "status": "${{ steps.check-flash-vicente.outcome == 'success' && 'online' || 'offline' }}",
-                "responseTime": "${{ steps.check-flash-vicente.outcome == 'success' && '1234' || '0' }}",
-                "error": "${{ steps.check-flash-vicente.outcome == 'failure' && 'Ver logs de GitHub Actions' || '' }}"
-              },
-              "pro": {
-                "status": "${{ steps.check-pro-vicente.outcome == 'success' && 'online' || 'offline' }}",
-                "responseTime": "${{ steps.check-pro-vicente.outcome == 'success' && '2345' || '0' }}",
-                "error": "${{ steps.check-pro-vicente.outcome == 'failure' && 'Ver logs de GitHub Actions' || '' }}"
-              }
-            }
-          }
-          EOF
-      
-      - name: Commit and push status.json
+      - name: Commit and push results
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add status.json
-          git commit -m "Update health check status [skip ci]" || exit 0
+          git add status.json history.json
+          git commit -m "🤖 Update health check status [skip ci]" || exit 0
           git push
       
       - name: Generate Status Report
         if: always()
         run: |
+          FABIAN_FLASH=$(jq -r '.fabian.flash.status' status.json)
+          FABIAN_PRO=$(jq -r '.fabian.pro.status' status.json)
+          VICENTE_FLASH=$(jq -r '.vicente.flash.status' status.json)
+          VICENTE_PRO=$(jq -r '.vicente.pro.status' status.json)
+          
           echo "## 🤖 Gemini API Health Check Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Fecha:** $(date -u)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Fabián Muñoz API Key" >> $GITHUB_STEP_SUMMARY
-          echo "- Gemini Flash: ${{ steps.check-flash-fabian.outcome == 'success' && '✅ Disponible' || '❌ No disponible' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Gemini 2.5 Pro: ${{ steps.check-pro-fabian.outcome == 'success' && '✅ Disponible' || '❌ No disponible' }}" >> $GITHUB_STEP_SUMMARY
+          echo "### 👤 Fabián Muñoz" >> $GITHUB_STEP_SUMMARY
+          echo "- Gemini Flash: $([ "$FABIAN_FLASH" == "online" ] && echo '✅ Disponible' || echo '❌ No disponible')" >> $GITHUB_STEP_SUMMARY
+          echo "- Gemini 2.5 Pro: $([ "$FABIAN_PRO" == "online" ] && echo '✅ Disponible' || echo '❌ No disponible')" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Vicente Chacón API Key" >> $GITHUB_STEP_SUMMARY
-          echo "- Gemini Flash: ${{ steps.check-flash-vicente.outcome == 'success' && '✅ Disponible' || '❌ No disponible' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Gemini 2.5 Pro: ${{ steps.check-pro-vicente.outcome == 'success' && '✅ Disponible' || '❌ No disponible' }}" >> $GITHUB_STEP_SUMMARY
+          echo "### 👤 Vicente Chacón" >> $GITHUB_STEP_SUMMARY
+          echo "- Gemini Flash: $([ "$VICENTE_FLASH" == "online" ] && echo '✅ Disponible' || echo '❌ No disponible')" >> $GITHUB_STEP_SUMMARY
+          echo "- Gemini 2.5 Pro: $([ "$VICENTE_PRO" == "online" ] && echo '✅ Disponible' || echo '❌ No disponible')" >> $GITHUB_STEP_SUMMARY

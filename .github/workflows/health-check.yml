@@ -1,0 +1,142 @@
+name: Health Check
+
+on:
+  schedule:
+    # Corre cada hora
+    - cron: '0 * * * *'
+  workflow_dispatch: # Permite ejecución manual
+  push:
+    branches: [ main ]
+
+jobs:
+  check-gemini-api:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: |
+          npm install @google/generative-ai
+      
+      - name: Check Gemini Flash (Fabián)
+        id: check-flash-fabian
+        continue-on-error: true
+        run: |
+          node -e "
+          const { GoogleGenerativeAI } = require('@google/generative-ai');
+          
+          async function check() {
+            try {
+              const genAI = new GoogleGenerativeAI('${{ secrets.GEMINI_API_KEY_FABIAN }}');
+              const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-002' });
+              const start = Date.now();
+              const result = await model.generateContent('OK');
+              const time = Date.now() - start;
+              console.log('✅ Gemini Flash (Fabián): DISPONIBLE (${time}ms)');
+              process.exit(0);
+            } catch (error) {
+              console.log('❌ Gemini Flash (Fabián): ERROR -', error.message);
+              process.exit(1);
+            }
+          }
+          check();
+          "
+      
+      - name: Check Gemini Pro (Fabián)
+        id: check-pro-fabian
+        continue-on-error: true
+        run: |
+          node -e "
+          const { GoogleGenerativeAI } = require('@google/generative-ai');
+          
+          async function check() {
+            try {
+              const genAI = new GoogleGenerativeAI('${{ secrets.GEMINI_API_KEY_FABIAN }}');
+              const model = genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
+              const start = Date.now();
+              const result = await model.generateContent('OK');
+              const time = Date.now() - start;
+              console.log('✅ Gemini 2.5 Pro (Fabián): DISPONIBLE (${time}ms)');
+              process.exit(0);
+            } catch (error) {
+              console.log('❌ Gemini 2.5 Pro (Fabián): ERROR -', error.message);
+              process.exit(1);
+            }
+          }
+          check();
+          "
+      
+      - name: Check Gemini Flash (Vicente)
+        id: check-flash-vicente
+        if: ${{ secrets.GEMINI_API_KEY_VICENTE != '' }}
+        continue-on-error: true
+        run: |
+          node -e "
+          const { GoogleGenerativeAI } = require('@google/generative-ai');
+          
+          async function check() {
+            try {
+              const genAI = new GoogleGenerativeAI('${{ secrets.GEMINI_API_KEY_VICENTE }}');
+              const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-002' });
+              const start = Date.now();
+              const result = await model.generateContent('OK');
+              const time = Date.now() - start;
+              console.log('✅ Gemini Flash (Vicente): DISPONIBLE (${time}ms)');
+              process.exit(0);
+            } catch (error) {
+              console.log('❌ Gemini Flash (Vicente): ERROR -', error.message);
+              process.exit(1);
+            }
+          }
+          check();
+          "
+      
+      - name: Check Gemini Pro (Vicente)
+        id: check-pro-vicente
+        if: ${{ secrets.GEMINI_API_KEY_VICENTE != '' }}
+        continue-on-error: true
+        run: |
+          node -e "
+          const { GoogleGenerativeAI } = require('@google/generative-ai');
+          
+          async function check() {
+            try {
+              const genAI = new GoogleGenerativeAI('${{ secrets.GEMINI_API_KEY_VICENTE }}');
+              const model = genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
+              const start = Date.now();
+              const result = await model.generateContent('OK');
+              const time = Date.now() - start;
+              console.log('✅ Gemini 2.5 Pro (Vicente): DISPONIBLE (${time}ms)');
+              process.exit(0);
+            } catch (error) {
+              console.log('❌ Gemini 2.5 Pro (Vicente): ERROR -', error.message);
+              process.exit(1);
+            }
+          }
+          check();
+          "
+      
+      - name: Generate Status Report
+        if: always()
+        run: |
+          echo "## 🤖 Gemini API Health Check Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Fecha:** $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Fabián Muñoz API Key" >> $GITHUB_STEP_SUMMARY
+          echo "- Gemini Flash: ${{ steps.check-flash-fabian.outcome == 'success' && '✅ Disponible' || '❌ No disponible' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Gemini 2.5 Pro: ${{ steps.check-pro-fabian.outcome == 'success' && '✅ Disponible' || '❌ No disponible' }}" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -n "${{ secrets.GEMINI_API_KEY_VICENTE }}" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Vicente Chacón API Key" >> $GITHUB_STEP_SUMMARY
+            echo "- Gemini Flash: ${{ steps.check-flash-vicente.outcome == 'success' && '✅ Disponible' || '❌ No disponible' }}" >> $GITHUB_STEP_SUMMARY
+            echo "- Gemini 2.5 Pro: ${{ steps.check-pro-vicente.outcome == 'success' && '✅ Disponible' || '❌ No disponible' }}" >> $GITHUB_STEP_SUMMARY
+          fi

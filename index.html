@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini API Health Checker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .api-key-section {
+            margin-bottom: 20px;
+        }
+
+        .api-key-section label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .api-key-section input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .api-key-section input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .preset-btn {
+            flex: 1;
+            padding: 8px 12px;
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .preset-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .api-key-section small {
+            display: block;
+            margin-top: 5px;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .models-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .model-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .model-card.checking {
+            border-color: #ffc107;
+            background: #fff9e6;
+        }
+
+        .model-card.online {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .model-card.offline {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .model-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .status-badge.checking {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .status-badge.online {
+            background: #4caf50;
+            color: white;
+        }
+
+        .status-badge.offline {
+            background: #f44336;
+            color: white;
+        }
+
+        .status-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-icon.checking {
+            background: #ffc107;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .status-icon.online {
+            background: #4caf50;
+        }
+
+        .status-icon.offline {
+            background: #f44336;
+        }
+
+        .response-time {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        .error-message {
+            font-size: 11px;
+            color: #d32f2f;
+            margin-top: 5px;
+            word-break: break-word;
+        }
+
+        .check-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .check-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .check-button:active {
+            transform: translateY(0);
+        }
+
+        .check-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .last-check {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .models-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 30px 20px;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Gemini API Health Checker</h1>
+        <p class="subtitle">Verifica el estado de los modelos de Gemini en tiempo real</p>
+
+        <div class="api-key-section">
+            <label for="apiKey">Google API Key:</label>
+            <div class="preset-buttons">
+                <button class="preset-btn" data-owner="fabian">👤 Fabián Muñoz</button>
+                <button class="preset-btn" data-owner="vicente">👤 Vicente Chacón</button>
+                <button class="preset-btn" data-owner="custom">✏️ Custom</button>
+            </div>
+            <div class="input-group">
+                <input 
+                    type="password" 
+                    id="apiKey" 
+                    placeholder="Selecciona un usuario o ingresa tu API key"
+                />
+            </div>
+            <small>Tu API key no se guarda en ningún servidor, solo se usa para las pruebas locales</small>
+        </div>
+
+        <div class="models-grid">
+            <div class="model-card" id="flash-card">
+                <div class="model-name">
+                    <span>⚡</span>
+                    Gemini 1.5 Flash
+                </div>
+                <div class="status-badge checking">
+                    <span class="status-icon checking"></span>
+                    Sin verificar
+                </div>
+                <div class="response-time" id="flash-time"></div>
+                <div class="error-message" id="flash-error"></div>
+            </div>
+
+            <div class="model-card" id="pro-card">
+                <div class="model-name">
+                    <span>💎</span>
+                    Gemini 2.5 Pro (Lambda)
+                </div>
+                <div class="status-badge checking">
+                    <span class="status-icon checking"></span>
+                    Sin verificar
+                </div>
+                <div class="response-time" id="pro-time"></div>
+                <div class="error-message" id="pro-error"></div>
+            </div>
+        </div>
+
+        <button class="check-button" id="checkBtn">
+            Verificar Estado
+        </button>
+
+        <div class="last-check" id="lastCheck"></div>
+
+        <div class="footer">
+            Hecho por <a href="https://github.com/FabianIMV" target="_blank">Fabián Muñoz</a> • 
+            <a href="https://github.com/FabianIMV/gemini-models-health-checker" target="_blank">GitHub</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { GoogleGenerativeAI } from 'https://esm.run/@google/generative-ai';
+
+        // API Keys preconfiguradas (estas deben estar en GitHub Secrets para CI/CD)
+        const API_KEYS = {
+            fabian: '', // Se llenará desde localStorage o variable de entorno
+            vicente: '', // Se llenará desde localStorage o variable de entorno
+            custom: ''
+        };
+
+        // Mismos modelos que usa tu Lambda de nutrición
+        const models = {
+            flash: {
+                name: 'gemini-1.5-flash-002',
+                displayName: 'Gemini 1.5 Flash',
+                cardId: 'flash-card',
+                timeId: 'flash-time',
+                errorId: 'flash-error'
+            },
+            pro: {
+                name: 'gemini-2.5-pro',
+                displayName: 'Gemini 2.5 Pro (usado en Lambda)',
+                cardId: 'pro-card',
+                timeId: 'pro-time',
+                errorId: 'pro-error'
+            }
+        };
+
+        // Cargar API keys guardadas
+        const savedKeys = JSON.parse(localStorage.getItem('gemini_api_keys') || '{}');
+        API_KEYS.fabian = savedKeys.fabian || '';
+        API_KEYS.vicente = savedKeys.vicente || '';
+
+        // Event listeners para botones preset
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const owner = e.target.dataset.owner;
+                
+                // Remover active de todos
+                document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                if (owner === 'custom') {
+                    document.getElementById('apiKey').value = '';
+                    document.getElementById('apiKey').focus();
+                } else {
+                    document.getElementById('apiKey').value = API_KEYS[owner];
+                }
+            });
+        });
+
+        // Guardar API key cuando cambie
+        document.getElementById('apiKey').addEventListener('change', (e) => {
+            const activeBtn = document.querySelector('.preset-btn.active');
+            if (activeBtn && activeBtn.dataset.owner !== 'custom') {
+                const owner = activeBtn.dataset.owner;
+                API_KEYS[owner] = e.target.value;
+                localStorage.setItem('gemini_api_keys', JSON.stringify({
+                    fabian: API_KEYS.fabian,
+                    vicente: API_KEYS.vicente
+                }));
+            }
+        });
+
+        async function checkModel(modelKey) {
+            const modelConfig = models[modelKey];
+            const apiKey = document.getElementById('apiKey').value;
+
+            if (!apiKey) {
+                updateModelStatus(modelKey, 'offline', 0, 'API key requerida');
+                return;
+            }
+
+            // Actualizar UI a "checking"
+            updateModelStatus(modelKey, 'checking', 0, '');
+
+            const startTime = Date.now();
+
+            try {
+                const genAI = new GoogleGenerativeAI(apiKey);
+                const model = genAI.getGenerativeModel({ model: modelConfig.name });
+
+                const result = await model.generateContent("Responde solo con 'OK'");
+                const response = await result.response;
+                const text = response.text();
+
+                const responseTime = Date.now() - startTime;
+                updateModelStatus(modelKey, 'online', responseTime, '');
+                
+            } catch (error) {
+                const responseTime = Date.now() - startTime;
+                let errorMessage = error.message;
+                
+                if (error.message.includes('overloaded')) {
+                    errorMessage = 'Servicio sobrecargado';
+                } else if (error.message.includes('quota')) {
+                    errorMessage = 'Límite de requests excedido';
+                } else if (error.message.includes('API_KEY_INVALID') || error.message.includes('API key')) {
+                    errorMessage = 'API key inválida';
+                } else if (error.message.includes('not found') || error.message.includes('404')) {
+                    errorMessage = 'Modelo no encontrado';
+                }
+                
+                updateModelStatus(modelKey, 'offline', responseTime, errorMessage);
+            }
+        }
+
+        function updateModelStatus(modelKey, status, responseTime, errorMessage) {
+            const model = models[modelKey];
+            const card = document.getElementById(model.cardId);
+            const timeEl = document.getElementById(model.timeId);
+            const errorEl = document.getElementById(model.errorId);
+
+            // Actualizar clases del card
+            card.className = `model-card ${status}`;
+
+            // Actualizar badge de estado
+            const badge = card.querySelector('.status-badge');
+            const icon = card.querySelector('.status-icon');
+            
+            badge.className = `status-badge ${status}`;
+            icon.className = `status-icon ${status}`;
+
+            if (status === 'online') {
+                badge.innerHTML = `<span class="status-icon online"></span>✅ Disponible`;
+                timeEl.textContent = `Tiempo de respuesta: ${responseTime}ms`;
+                errorEl.textContent = '';
+            } else if (status === 'offline') {
+                badge.innerHTML = `<span class="status-icon offline"></span>❌ No disponible`;
+                timeEl.textContent = responseTime > 0 ? `Tiempo: ${responseTime}ms` : '';
+                errorEl.textContent = errorMessage;
+            } else {
+                badge.innerHTML = `<span class="status-icon checking"></span>🔄 Verificando...`;
+                timeEl.textContent = '';
+                errorEl.textContent = '';
+            }
+        }
+
+        async function checkAllModels() {
+            const btn = document.getElementById('checkBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Verificando...';
+
+            // Verificar ambos modelos en paralelo
+            await Promise.all([
+                checkModel('flash'),
+                checkModel('pro')
+            ]);
+
+            btn.disabled = false;
+            btn.textContent = 'Verificar Estado';
+
+            // Actualizar timestamp
+            const now = new Date();
+            document.getElementById('lastCheck').textContent = 
+                `Última verificación: ${now.toLocaleTimeString('es-ES')}`;
+        }
+
+        // Event listener para el botón
+        document.getElementById('checkBtn').addEventListener('click', checkAllModels);
+
+        // Auto-check cada 60 segundos si hay API key
+        setInterval(() => {
+            const apiKey = document.getElementById('apiKey').value;
+            if (apiKey) {
+                checkAllModels();
+            }
+        }, 60000);
+    </script>
+</body>
+</html>

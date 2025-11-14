@@ -25,5 +25,32 @@
         "error": ""
       }
     }
+  },
+  {
+    "timestamp": "2025-11-14T15:47:19.325Z",
+    "fabian": {
+      "flash": {
+        "status": "offline",
+        "responseTime": 0,
+        "error": "[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent: [404 Not Found] models/gemini-1.5-flash-002 is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods."
+      },
+      "pro": {
+        "status": "online",
+        "responseTime": 14823,
+        "error": ""
+      }
+    },
+    "vicente": {
+      "flash": {
+        "status": "offline",
+        "responseTime": 0,
+        "error": "[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent: [404 Not Found] models/gemini-1.5-flash-002 is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods."
+      },
+      "pro": {
+        "status": "offline",
+        "responseTime": 0,
+        "error": "[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later."
+      }
+    }
   }
 ]

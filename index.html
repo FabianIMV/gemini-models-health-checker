@@ -382,9 +382,15 @@
             </div>
         </div>
 
-        <button class="check-button" id="refreshBtn">
-            🔄 Actualizar Estado
+        <button class="check-button" id="refreshBtn" title="Ejecuta una verificación manual de las APIs de Gemini">
+            🔄 Ejecutar Verificación Manual
         </button>
+        
+        <div style="text-align: center; margin-top: 10px;">
+            <small style="color: #999;">
+                Esto ejecutará el workflow de GitHub Actions (~1 minuto)
+            </small>
+        </div>
 
         <div class="last-check" id="lastCheck"></div>
 
@@ -392,10 +398,11 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin: 40px 0 20px 0;">
             <h3 style="color: #333; font-size: 16px; margin: 0;">📊 Historial de Tiempo de Respuesta</h3>
             <select id="timeRangePicker" style="padding: 8px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; background: white; color: #333;">
-                <option value="5">Últimos 5 min</option>
-                <option value="60">Última hora</option>
+                <option value="180">Últimas 3 horas</option>
                 <option value="360">Últimas 6 horas</option>
-                <option value="1440" selected>Último día</option>
+                <option value="720">Últimas 12 horas</option>
+                <option value="1440" selected>Últimas 24 horas</option>
+                <option value="4320">Últimos 3 días</option>
                 <option value="10080">Última semana</option>
             </select>
         </div>
@@ -469,15 +476,84 @@
         }
 
         // Event listener para el botón de refresh
-        document.getElementById('refreshBtn').addEventListener('click', () => {
+        document.getElementById('refreshBtn').addEventListener('click', async () => {
             const btn = document.getElementById('refreshBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> Actualizando...';
             
-            loadStatus().finally(() => {
-                btn.disabled = false;
-                btn.innerHTML = '🔄 Actualizar Estado';
-            });
+            // Abrir GitHub Actions en nueva pestaña para que el usuario ejecute el workflow
+            const githubActionsUrl = 'https://github.com/FabianIMV/gemini-models-health-checker/actions/workflows/health-check.yml';
+            window.open(githubActionsUrl, '_blank');
+            
+            // Mostrar instrucciones
+            if (confirm('Se abrirá GitHub Actions en una nueva pestaña.\n\n1. Haz clic en "Run workflow" → "Run workflow"\n2. Vuelve a esta pestaña\n3. Esperaremos 60 segundos y cargaremos los nuevos resultados\n\n¿Continuar?')) {
+                btn.disabled = true;
+                
+                // Esperar 60 segundos con countdown
+                let countdown = 60;
+                btn.innerHTML = `<span class="spinner"></span> Esperando resultados (${countdown}s)...`;
+                
+                const countdownInterval = setInterval(() => {
+                    countdown--;
+                    if (countdown > 0) {
+                        btn.innerHTML = `<span class="spinner"></span> Esperando resultados (${countdown}s)...`;
+                    }
+                }, 1000);
+                
+                // Después de 60 segundos, intentar recargar cada 5 segundos
+                setTimeout(async () => {
+                    clearInterval(countdownInterval);
+                    btn.innerHTML = '<span class="spinner"></span> Obteniendo resultados...';
+                    
+                    let attempts = 0;
+                    const maxAttempts = 6; // 6 intentos = 30 segundos más
+                    
+                    const checkForUpdates = async () => {
+                        try {
+                            const oldTimestamp = document.getElementById('lastCheck').textContent;
+                            await loadStatus();
+                            await loadHistory();
+                            const newTimestamp = document.getElementById('lastCheck').textContent;
+                            
+                            if (oldTimestamp !== newTimestamp) {
+                                // Los datos se actualizaron
+                                btn.disabled = false;
+                                btn.innerHTML = '🔄 Ejecutar Verificación Manual';
+                                
+                                const lastCheckEl = document.getElementById('lastCheck');
+                                lastCheckEl.textContent = '✅ Estado actualizado correctamente - ' + newTimestamp.replace('Última verificación: ', '');
+                                lastCheckEl.style.color = '#4caf50';
+                                lastCheckEl.style.fontWeight = '600';
+                                
+                                setTimeout(() => {
+                                    lastCheckEl.style.color = '';
+                                    lastCheckEl.style.fontWeight = '';
+                                }, 5000);
+                            } else {
+                                // Los datos no se actualizaron aún
+                                attempts++;
+                                if (attempts < maxAttempts) {
+                                    btn.innerHTML = `<span class="spinner"></span> Reintentando (${attempts}/${maxAttempts})...`;
+                                    setTimeout(checkForUpdates, 5000);
+                                } else {
+                                    btn.disabled = false;
+                                    btn.innerHTML = '🔄 Ejecutar Verificación Manual';
+                                    alert('No se detectaron cambios. El workflow puede estar tardando más de lo esperado. Intenta recargar la página en unos minutos.');
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error checking updates:', error);
+                            attempts++;
+                            if (attempts < maxAttempts) {
+                                setTimeout(checkForUpdates, 5000);
+                            } else {
+                                btn.disabled = false;
+                                btn.innerHTML = '🔄 Ejecutar Verificación Manual';
+                            }
+                        }
+                    };
+                    
+                    await checkForUpdates();
+                }, 60000);
+            }
         });
 
         // Cargar historial y crear gráfica
@@ -502,23 +578,44 @@
                 // Obtener el rango de tiempo seleccionado (en minutos)
                 const timeRange = parseInt(document.getElementById('timeRangePicker').value);
                 
-                // Calcular cuántas entradas necesitamos (cada entrada = 1 hora)
-                const entriesNeeded = Math.ceil(timeRange / 60);
+                // Filtrar por tiempo real, no por cantidad de entradas
+                const now = new Date();
+                const cutoffTime = new Date(now.getTime() - (timeRange * 60 * 1000));
                 
-                // Tomar las últimas N entradas según el rango seleccionado
-                const filteredHistory = fullHistory.slice(-entriesNeeded);
+                const filteredHistory = fullHistory.filter(h => {
+                    const entryTime = new Date(h.timestamp);
+                    return entryTime >= cutoffTime;
+                });
+                
+                // Si no hay datos suficientes, mostrar mensaje
+                if (filteredHistory.length === 0) {
+                    if (historyChart) {
+                        historyChart.destroy();
+                    }
+                    const ctx = document.getElementById('historyChart').getContext('2d');
+                    ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
+                    ctx.fillStyle = '#999';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('No hay datos disponibles para este rango de tiempo', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                    return;
+                }
                 
                 // Preparar datos para la gráfica
                 const labels = filteredHistory.map(h => {
                     const date = new Date(h.timestamp);
-                    const timeRange = parseInt(document.getElementById('timeRangePicker').value);
                     
                     // Formato de fecha dependiendo del rango
-                    if (timeRange <= 60) { // 5 min o 1 hora
+                    if (timeRange <= 720) { // Hasta 12 horas
                         return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-                    } else if (timeRange <= 1440) { // 6 horas o 1 día
-                        return date.toLocaleString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                    } else { // 1 semana
+                    } else if (timeRange <= 1440) { // 24 horas
+                        const now = new Date();
+                        const isToday = date.toDateString() === now.toDateString();
+                        if (isToday) {
+                            return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                        } else {
+                            return date.toLocaleString('es-ES', { day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                        }
+                    } else { // Más de 1 día
                         return date.toLocaleString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit' });
                     }
                 });

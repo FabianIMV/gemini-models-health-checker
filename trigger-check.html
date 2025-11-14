@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trigger Manual Check</title>
+</head>
+<body>
+    <script>
+        // Este script redirige a GitHub Actions para ejecutar el workflow manualmente
+        const owner = 'FabianIMV';
+        const repo = 'gemini-models-health-checker';
+        const workflowFile = 'health-check.yml';
+        
+        // Redirigir a la página de GitHub Actions para ejecución manual
+        window.location.href = `https://github.com/${owner}/${repo}/actions/workflows/${workflowFile}`;
+    </script>
+</body>
+</html>

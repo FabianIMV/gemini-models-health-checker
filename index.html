@@ -311,7 +311,7 @@
             <div class="model-card" id="fabian-flash-card">
                 <div class="model-name">
                     <span>⚡</span>
-                    Gemini 1.5 Flash
+                    Gemini 2.5 Flash
                 </div>
                 <div class="status-badge checking">
                     <span class="status-icon checking"></span>
@@ -343,7 +343,7 @@
             <div class="model-card" id="vicente-flash-card">
                 <div class="model-name">
                     <span>⚡</span>
-                    Gemini 1.5 Flash
+                    Gemini 2.5 Flash
                 </div>
                 <div class="status-badge checking">
                     <span class="status-icon checking"></span>
@@ -475,7 +475,7 @@
                 
                 const datasets = [
                     {
-                        label: 'Fabián - Gemini Pro',
+                        label: 'Fabián - Gemini 2.5 Pro',
                         data: last24.map(h => h.fabian.pro.status === 'online' ? h.fabian.pro.responseTime : 0),
                         borderColor: '#667eea',
                         backgroundColor: 'rgba(102, 126, 234, 0.1)',
@@ -483,15 +483,15 @@
                         pointRadius: 3
                     },
                     {
-                        label: 'Fabián - Flash',
-                        data: last24.map(h => h.fabian.flash.status === 'online' ? h.fabian.flash.responseTime : 0),
+                        label: 'Fabián - Gemini 2.5 Flash',
+                        data: last24.map(h => h.fabian.flash && h.fabian.flash.status === 'online' ? h.fabian.flash.responseTime : 0),
                         borderColor: '#764ba2',
                         backgroundColor: 'rgba(118, 75, 162, 0.1)',
                         tension: 0.4,
                         pointRadius: 3
                     },
                     {
-                        label: 'Vicente - Gemini Pro',
+                        label: 'Vicente - Gemini 2.5 Pro',
                         data: last24.map(h => h.vicente.pro.status === 'online' ? h.vicente.pro.responseTime : 0),
                         borderColor: '#4caf50',
                         backgroundColor: 'rgba(76, 175, 80, 0.1)',
@@ -499,8 +499,8 @@
                         pointRadius: 3
                     },
                     {
-                        label: 'Vicente - Flash',
-                        data: last24.map(h => h.vicente.flash.status === 'online' ? h.vicente.flash.responseTime : 0),
+                        label: 'Vicente - Gemini 2.5 Flash',
+                        data: last24.map(h => h.vicente.flash && h.vicente.flash.status === 'online' ? h.vicente.flash.responseTime : 0),
                         borderColor: '#ffc107',
                         backgroundColor: 'rgba(255, 193, 7, 0.1)',
                         tension: 0.4,

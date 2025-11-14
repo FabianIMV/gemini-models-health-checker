@@ -398,6 +398,8 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin: 40px 0 20px 0;">
             <h3 style="color: #333; font-size: 16px; margin: 0;">📊 Historial de Tiempo de Respuesta</h3>
             <select id="timeRangePicker" style="padding: 8px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; background: white; color: #333;">
+                <option value="5">Últimos 5 minutos</option>
+                <option value="60">Última hora</option>
                 <option value="180">Últimas 3 horas</option>
                 <option value="360">Últimas 6 horas</option>
                 <option value="720">Últimas 12 horas</option>
@@ -700,12 +702,13 @@
                             x: {
                                 type: 'time',
                                 time: {
-                                    unit: timeRange <= 720 ? 'hour' : (timeRange <= 1440 ? 'hour' : 'day'),
+                                    unit: timeRange <= 60 ? 'minute' : (timeRange <= 720 ? 'hour' : 'day'),
                                     displayFormats: {
+                                        minute: 'HH:mm',
                                         hour: 'HH:mm',
                                         day: 'MMM dd'
                                     },
-                                    tooltipFormat: 'MMM dd, HH:mm'
+                                    tooltipFormat: 'MMM dd, HH:mm:ss'
                                 },
                                 min: cutoffTime.getTime(),
                                 max: now.getTime(),
@@ -715,7 +718,9 @@
                                 },
                                 ticks: {
                                     maxRotation: 45,
-                                    minRotation: 45
+                                    minRotation: 45,
+                                    autoSkip: true,
+                                    maxTicksLimit: timeRange <= 60 ? 12 : 20
                                 }
                             }
                         }

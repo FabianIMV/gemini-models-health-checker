@@ -296,53 +296,79 @@
         <h1>🤖 Gemini API Health Checker</h1>
         <p class="subtitle">Verifica el estado de los modelos de Gemini en tiempo real</p>
 
-        <div class="api-key-section">
-            <label for="apiKey">Google API Key:</label>
-            <div class="preset-buttons">
-                <button class="preset-btn" data-owner="fabian">👤 Fabián Muñoz</button>
-                <button class="preset-btn" data-owner="vicente">👤 Vicente Chacón</button>
-                <button class="preset-btn" data-owner="custom">✏️ Custom</button>
-            </div>
-            <div class="input-group">
-                <input 
-                    type="password" 
-                    id="apiKey" 
-                    placeholder="Selecciona un usuario o ingresa tu API key"
-                />
-            </div>
-            <small>Tu API key no se guarda en ningún servidor, solo se usa para las pruebas locales</small>
+                <div class="api-key-section">
+            <h2 style="color: #333; font-size: 18px; margin-bottom: 20px;">👥 Estado de API Keys</h2>
+            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
+                Verificación automática cada hora vía GitHub Actions
+            </p>
         </div>
 
+        <!-- Fabián Muñoz Section -->
+        <h3 style="color: #333; font-size: 16px; margin: 20px 0 15px 0; display: flex; align-items: center; gap: 8px;">
+            <span>👤</span> Fabián Muñoz
+        </h3>
         <div class="models-grid">
-            <div class="model-card" id="flash-card">
+            <div class="model-card" id="fabian-flash-card">
                 <div class="model-name">
                     <span>⚡</span>
                     Gemini 1.5 Flash
                 </div>
                 <div class="status-badge checking">
                     <span class="status-icon checking"></span>
-                    Sin verificar
+                    Cargando...
                 </div>
-                <div class="response-time" id="flash-time"></div>
-                <div class="error-message" id="flash-error"></div>
+                <div class="response-time" id="fabian-flash-time"></div>
+                <div class="error-message" id="fabian-flash-error"></div>
             </div>
 
-            <div class="model-card" id="pro-card">
+            <div class="model-card" id="fabian-pro-card">
                 <div class="model-name">
                     <span>💎</span>
-                    Gemini 2.5 Pro (Lambda)
+                    Gemini 2.5 Pro
                 </div>
                 <div class="status-badge checking">
                     <span class="status-icon checking"></span>
-                    Sin verificar
+                    Cargando...
                 </div>
-                <div class="response-time" id="pro-time"></div>
-                <div class="error-message" id="pro-error"></div>
+                <div class="response-time" id="fabian-pro-time"></div>
+                <div class="error-message" id="fabian-pro-error"></div>
             </div>
         </div>
 
-        <button class="check-button" id="checkBtn">
-            Verificar Estado
+        <!-- Vicente Chacón Section -->
+        <h3 style="color: #333; font-size: 16px; margin: 30px 0 15px 0; display: flex; align-items: center; gap: 8px;">
+            <span>👤</span> Vicente Chacón
+        </h3>
+        <div class="models-grid">
+            <div class="model-card" id="vicente-flash-card">
+                <div class="model-name">
+                    <span>⚡</span>
+                    Gemini 1.5 Flash
+                </div>
+                <div class="status-badge checking">
+                    <span class="status-icon checking"></span>
+                    Cargando...
+                </div>
+                <div class="response-time" id="vicente-flash-time"></div>
+                <div class="error-message" id="vicente-flash-error"></div>
+            </div>
+
+            <div class="model-card" id="vicente-pro-card">
+                <div class="model-name">
+                    <span>💎</span>
+                    Gemini 2.5 Pro
+                </div>
+                <div class="status-badge checking">
+                    <span class="status-icon checking"></span>
+                    Cargando...
+                </div>
+                <div class="response-time" id="vicente-pro-time"></div>
+                <div class="error-message" id="vicente-pro-error"></div>
+            </div>
+        </div>
+
+        <button class="check-button" id="refreshBtn">
+            🔄 Actualizar Estado
         </button>
 
         <div class="last-check" id="lastCheck"></div>
@@ -353,174 +379,81 @@
         </div>
     </div>
 
-    <script type="module">
-        import { GoogleGenerativeAI } from 'https://esm.run/@google/generative-ai';
-
-        // API Keys preconfiguradas (estas deben estar en GitHub Secrets para CI/CD)
-        const API_KEYS = {
-            fabian: '', // Se llenará desde localStorage o variable de entorno
-            vicente: '', // Se llenará desde localStorage o variable de entorno
-            custom: ''
-        };
-
-        // Mismos modelos que usa tu Lambda de nutrición
-        const models = {
-            flash: {
-                name: 'gemini-1.5-flash-002',
-                displayName: 'Gemini 1.5 Flash',
-                cardId: 'flash-card',
-                timeId: 'flash-time',
-                errorId: 'flash-error'
-            },
-            pro: {
-                name: 'gemini-2.5-pro',
-                displayName: 'Gemini 2.5 Pro (usado en Lambda)',
-                cardId: 'pro-card',
-                timeId: 'pro-time',
-                errorId: 'pro-error'
-            }
-        };
-
-        // Cargar API keys guardadas
-        const savedKeys = JSON.parse(localStorage.getItem('gemini_api_keys') || '{}');
-        API_KEYS.fabian = savedKeys.fabian || '';
-        API_KEYS.vicente = savedKeys.vicente || '';
-
-        // Event listeners para botones preset
-        document.querySelectorAll('.preset-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const owner = e.target.dataset.owner;
-                
-                // Remover active de todos
-                document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                
-                if (owner === 'custom') {
-                    document.getElementById('apiKey').value = '';
-                    document.getElementById('apiKey').focus();
-                } else {
-                    document.getElementById('apiKey').value = API_KEYS[owner];
-                }
-            });
-        });
-
-        // Guardar API key cuando cambie
-        document.getElementById('apiKey').addEventListener('change', (e) => {
-            const activeBtn = document.querySelector('.preset-btn.active');
-            if (activeBtn && activeBtn.dataset.owner !== 'custom') {
-                const owner = activeBtn.dataset.owner;
-                API_KEYS[owner] = e.target.value;
-                localStorage.setItem('gemini_api_keys', JSON.stringify({
-                    fabian: API_KEYS.fabian,
-                    vicente: API_KEYS.vicente
-                }));
-            }
-        });
-
-        async function checkModel(modelKey) {
-            const modelConfig = models[modelKey];
-            const apiKey = document.getElementById('apiKey').value;
-
-            if (!apiKey) {
-                updateModelStatus(modelKey, 'offline', 0, 'API key requerida');
-                return;
-            }
-
-            // Actualizar UI a "checking"
-            updateModelStatus(modelKey, 'checking', 0, '');
-
-            const startTime = Date.now();
-
+    <script>
+        // Cargar el estado desde el JSON generado por GitHub Actions
+        async function loadStatus() {
             try {
-                const genAI = new GoogleGenerativeAI(apiKey);
-                const model = genAI.getGenerativeModel({ model: modelConfig.name });
-
-                const result = await model.generateContent("Responde solo con 'OK'");
-                const response = await result.response;
-                const text = response.text();
-
-                const responseTime = Date.now() - startTime;
-                updateModelStatus(modelKey, 'online', responseTime, '');
+                const response = await fetch('status.json?' + new Date().getTime()); // Cache bust
+                const data = await response.json();
                 
+                // Actualizar UI con los datos
+                updateCard('fabian', 'flash', data.fabian.flash);
+                updateCard('fabian', 'pro', data.fabian.pro);
+                updateCard('vicente', 'flash', data.vicente.flash);
+                updateCard('vicente', 'pro', data.vicente.pro);
+                
+                // Actualizar timestamp
+                document.getElementById('lastCheck').textContent = 
+                    `Última verificación: ${new Date(data.timestamp).toLocaleString('es-ES')}`;
+                    
             } catch (error) {
-                const responseTime = Date.now() - startTime;
-                let errorMessage = error.message;
-                
-                if (error.message.includes('overloaded')) {
-                    errorMessage = 'Servicio sobrecargado';
-                } else if (error.message.includes('quota')) {
-                    errorMessage = 'Límite de requests excedido';
-                } else if (error.message.includes('API_KEY_INVALID') || error.message.includes('API key')) {
-                    errorMessage = 'API key inválida';
-                } else if (error.message.includes('not found') || error.message.includes('404')) {
-                    errorMessage = 'Modelo no encontrado';
-                }
-                
-                updateModelStatus(modelKey, 'offline', responseTime, errorMessage);
+                console.error('Error cargando estado:', error);
+                document.getElementById('lastCheck').textContent = 
+                    'Error al cargar estado. GitHub Actions puede estar ejecutándose.';
             }
         }
 
-        function updateModelStatus(modelKey, status, responseTime, errorMessage) {
-            const model = models[modelKey];
-            const card = document.getElementById(model.cardId);
-            const timeEl = document.getElementById(model.timeId);
-            const errorEl = document.getElementById(model.errorId);
-
+        function updateCard(owner, model, data) {
+            const cardId = `${owner}-${model}-card`;
+            const timeId = `${owner}-${model}-time`;
+            const errorId = `${owner}-${model}-error`;
+            
+            const card = document.getElementById(cardId);
+            const timeEl = document.getElementById(timeId);
+            const errorEl = document.getElementById(errorId);
+            
+            if (!card) return;
+            
+            const status = data.status; // 'online' or 'offline'
+            
             // Actualizar clases del card
             card.className = `model-card ${status}`;
-
+            
             // Actualizar badge de estado
             const badge = card.querySelector('.status-badge');
             const icon = card.querySelector('.status-icon');
             
             badge.className = `status-badge ${status}`;
             icon.className = `status-icon ${status}`;
-
+            
             if (status === 'online') {
                 badge.innerHTML = `<span class="status-icon online"></span>✅ Disponible`;
-                timeEl.textContent = `Tiempo de respuesta: ${responseTime}ms`;
+                timeEl.textContent = `Tiempo de respuesta: ${data.responseTime}ms`;
                 errorEl.textContent = '';
-            } else if (status === 'offline') {
-                badge.innerHTML = `<span class="status-icon offline"></span>❌ No disponible`;
-                timeEl.textContent = responseTime > 0 ? `Tiempo: ${responseTime}ms` : '';
-                errorEl.textContent = errorMessage;
             } else {
-                badge.innerHTML = `<span class="status-icon checking"></span>🔄 Verificando...`;
-                timeEl.textContent = '';
-                errorEl.textContent = '';
+                badge.innerHTML = `<span class="status-icon offline"></span>❌ No disponible`;
+                timeEl.textContent = data.responseTime ? `Tiempo: ${data.responseTime}ms` : '';
+                errorEl.textContent = data.error || 'Error desconocido';
             }
         }
 
-        async function checkAllModels() {
-            const btn = document.getElementById('checkBtn');
+        // Event listener para el botón de refresh
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            const btn = document.getElementById('refreshBtn');
             btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> Verificando...';
+            btn.innerHTML = '<span class="spinner"></span> Actualizando...';
+            
+            loadStatus().finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '🔄 Actualizar Estado';
+            });
+        });
 
-            // Verificar ambos modelos en paralelo
-            await Promise.all([
-                checkModel('flash'),
-                checkModel('pro')
-            ]);
-
-            btn.disabled = false;
-            btn.textContent = 'Verificar Estado';
-
-            // Actualizar timestamp
-            const now = new Date();
-            document.getElementById('lastCheck').textContent = 
-                `Última verificación: ${now.toLocaleTimeString('es-ES')}`;
-        }
-
-        // Event listener para el botón
-        document.getElementById('checkBtn').addEventListener('click', checkAllModels);
-
-        // Auto-check cada 60 segundos si hay API key
-        setInterval(() => {
-            const apiKey = document.getElementById('apiKey').value;
-            if (apiKey) {
-                checkAllModels();
-            }
-        }, 60000);
+        // Cargar estado al iniciar
+        loadStatus();
+        
+        // Auto-refresh cada 5 minutos
+        setInterval(loadStatus, 5 * 60 * 1000);
     </script>
 </body>
 </html>

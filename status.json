@@ -1,0 +1,27 @@
+{
+  "timestamp": "2025-11-14T00:00:00Z",
+  "fabian": {
+    "flash": {
+      "status": "checking",
+      "responseTime": 0,
+      "error": "Esperando primera verificación de GitHub Actions"
+    },
+    "pro": {
+      "status": "checking",
+      "responseTime": 0,
+      "error": "Esperando primera verificación de GitHub Actions"
+    }
+  },
+  "vicente": {
+    "flash": {
+      "status": "checking",
+      "responseTime": 0,
+      "error": "Esperando primera verificación de GitHub Actions"
+    },
+    "pro": {
+      "status": "checking",
+      "responseTime": 0,
+      "error": "Esperando primera verificación de GitHub Actions"
+    }
+  }
+}

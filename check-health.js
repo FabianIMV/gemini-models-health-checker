@@ -6,9 +6,18 @@ const apiKeys = {
   vicente: process.env.GEMINI_API_KEY_VICENTE
 };
 
-const models = ['gemini-1.5-flash-002', 'gemini-2.5-pro'];
+const models = ['gemini-1.5-flash', 'gemini-2.5-pro'];
 
 async function checkModel(owner, apiKey, modelName) {
+  if (!apiKey) {
+    console.log(`⚠️ ${owner} - ${modelName}: Sin API key configurada`);
+    return {
+      status: 'offline',
+      responseTime: 0,
+      error: 'API key no configurada'
+    };
+  }
+  
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: modelName });
@@ -39,11 +48,11 @@ async function main() {
   const results = {
     timestamp,
     fabian: {
-      flash: await checkModel('Fabián', apiKeys.fabian, 'gemini-1.5-flash-002'),
+      flash: await checkModel('Fabián', apiKeys.fabian, 'gemini-1.5-flash'),
       pro: await checkModel('Fabián', apiKeys.fabian, 'gemini-2.5-pro')
     },
     vicente: {
-      flash: await checkModel('Vicente', apiKeys.vicente, 'gemini-1.5-flash-002'),
+      flash: await checkModel('Vicente', apiKeys.vicente, 'gemini-1.5-flash'),
       pro: await checkModel('Vicente', apiKeys.vicente, 'gemini-2.5-pro')
     }
   };

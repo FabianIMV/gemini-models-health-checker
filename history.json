@@ -1321,5 +1321,32 @@
         "error": ""
       }
     }
+  },
+  {
+    "timestamp": "2025-11-15T22:00:52.232Z",
+    "fabian": {
+      "flash": {
+        "status": "online",
+        "responseTime": 3598,
+        "error": ""
+      },
+      "pro": {
+        "status": "online",
+        "responseTime": 13933,
+        "error": ""
+      }
+    },
+    "vicente": {
+      "flash": {
+        "status": "online",
+        "responseTime": 4796,
+        "error": ""
+      },
+      "pro": {
+        "status": "online",
+        "responseTime": 15447,
+        "error": ""
+      }
+    }
   }
 ]

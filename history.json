@@ -1186,5 +1186,32 @@
         "error": "[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later."
       }
     }
+  },
+  {
+    "timestamp": "2025-11-15T17:01:04.878Z",
+    "fabian": {
+      "flash": {
+        "status": "online",
+        "responseTime": 4547,
+        "error": ""
+      },
+      "pro": {
+        "status": "offline",
+        "responseTime": 0,
+        "error": "[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later."
+      }
+    },
+    "vicente": {
+      "flash": {
+        "status": "online",
+        "responseTime": 5498,
+        "error": ""
+      },
+      "pro": {
+        "status": "online",
+        "responseTime": 16791,
+        "error": ""
+      }
+    }
   }
 ]

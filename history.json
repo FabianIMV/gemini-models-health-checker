@@ -1969,5 +1969,32 @@
         "error": ""
       }
     }
+  },
+  {
+    "timestamp": "2025-11-16T22:01:00.003Z",
+    "fabian": {
+      "flash": {
+        "status": "online",
+        "responseTime": 3727,
+        "error": ""
+      },
+      "pro": {
+        "status": "online",
+        "responseTime": 16722,
+        "error": ""
+      }
+    },
+    "vicente": {
+      "flash": {
+        "status": "online",
+        "responseTime": 4345,
+        "error": ""
+      },
+      "pro": {
+        "status": "online",
+        "responseTime": 12812,
+        "error": ""
+      }
+    }
   }
 ]

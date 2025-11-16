@@ -1996,5 +1996,32 @@
         "error": ""
       }
     }
+  },
+  {
+    "timestamp": "2025-11-16T23:01:07.975Z",
+    "fabian": {
+      "flash": {
+        "status": "online",
+        "responseTime": 2549,
+        "error": ""
+      },
+      "pro": {
+        "status": "online",
+        "responseTime": 14480,
+        "error": ""
+      }
+    },
+    "vicente": {
+      "flash": {
+        "status": "online",
+        "responseTime": 3154,
+        "error": ""
+      },
+      "pro": {
+        "status": "online",
+        "responseTime": 15043,
+        "error": ""
+      }
+    }
   }
 ]

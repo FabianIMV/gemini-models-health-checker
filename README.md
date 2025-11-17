@@ -4,7 +4,7 @@ Sistema de monitoreo en tiempo real para verificar la disponibilidad de los mode
 
 ## 🚀 Demo en Vivo
 
-Visita: [https://fabianmv.github.io/gemini-models-health-checker](https://fabianmv.github.io/gemini-models-health-checker)
+Visita: [https://fabianimv.github.io/gemini-models-health-checker](https://fabianimv.github.io/gemini-models-health-checker)
 
 ## 📋 Características
 

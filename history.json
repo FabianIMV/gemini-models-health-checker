@@ -2995,5 +2995,32 @@
         "error": ""
       }
     }
+  },
+  {
+    "timestamp": "2025-11-18T11:01:09.983Z",
+    "fabian": {
+      "flash": {
+        "status": "offline",
+        "responseTime": 0,
+        "error": "[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later."
+      },
+      "pro": {
+        "status": "online",
+        "responseTime": 12556,
+        "error": ""
+      }
+    },
+    "vicente": {
+      "flash": {
+        "status": "online",
+        "responseTime": 5767,
+        "error": ""
+      },
+      "pro": {
+        "status": "online",
+        "responseTime": 15275,
+        "error": ""
+      }
+    }
   }
 ]

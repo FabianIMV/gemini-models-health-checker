@@ -1,32 +1,5 @@
 [
   {
-    "timestamp": "2025-11-14T15:52:48.834Z",
-    "fabian": {
-      "flash": {
-        "status": "offline",
-        "responseTime": 0,
-        "error": "[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods."
-      },
-      "pro": {
-        "status": "offline",
-        "responseTime": 0,
-        "error": "[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later."
-      }
-    },
-    "vicente": {
-      "flash": {
-        "status": "offline",
-        "responseTime": 0,
-        "error": "[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods."
-      },
-      "pro": {
-        "status": "offline",
-        "responseTime": 0,
-        "error": "[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later."
-      }
-    }
-  },
-  {
     "timestamp": "2025-11-14T15:57:47.857Z",
     "fabian": {
       "flash": {
@@ -4531,6 +4504,33 @@
       "pro": {
         "status": "online",
         "responseTime": 7470,
+        "error": ""
+      }
+    }
+  },
+  {
+    "timestamp": "2025-11-20T23:01:11.691Z",
+    "fabian": {
+      "flash": {
+        "status": "online",
+        "responseTime": 4853,
+        "error": ""
+      },
+      "pro": {
+        "status": "online",
+        "responseTime": 10842,
+        "error": ""
+      }
+    },
+    "vicente": {
+      "flash": {
+        "status": "online",
+        "responseTime": 2856,
+        "error": ""
+      },
+      "pro": {
+        "status": "online",
+        "responseTime": 11265,
         "error": ""
       }
     }

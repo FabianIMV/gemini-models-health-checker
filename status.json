@@ -1,26 +1,26 @@
 {
-  "timestamp": "2025-11-22T04:01:04.054Z",
+  "timestamp": "2025-11-22T05:01:06.545Z",
   "fabian": {
     "flash": {
       "status": "online",
-      "responseTime": 4600,
+      "responseTime": 4427,
       "error": ""
     },
     "pro": {
       "status": "online",
-      "responseTime": 10849,
+      "responseTime": 10077,
       "error": ""
     }
   },
   "vicente": {
     "flash": {
       "status": "online",
-      "responseTime": 3713,
+      "responseTime": 2260,
       "error": ""
     },
     "pro": {
       "status": "online",
-      "responseTime": 9969,
+      "responseTime": 10766,
       "error": ""
     }
   }

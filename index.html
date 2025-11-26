@@ -777,6 +777,18 @@
                 // Detectar si es mobile
                 const isMobile = window.innerWidth <= 600;
 
+                // Calcular el máximo valor de los datos para ajustar la escala
+                let maxValue = 0;
+                datasets.forEach(dataset => {
+                    dataset.data.forEach(value => {
+                        if (value !== null && value > maxValue) {
+                            maxValue = value;
+                        }
+                    });
+                });
+                // Agregar 20% de margen superior
+                const suggestedMax = maxValue > 0 ? Math.ceil(maxValue * 1.2) : 5000;
+
                 // Crear nueva gráfica
                 const ctx = document.getElementById('historyChart').getContext('2d');
                 historyChart = new Chart(ctx, {
@@ -823,6 +835,7 @@
                         scales: {
                             y: {
                                 beginAtZero: true,
+                                suggestedMax: suggestedMax,
                                 title: {
                                     display: !isMobile,
                                     text: 'Tiempo de respuesta (ms)',
@@ -836,7 +849,8 @@
                                     },
                                     callback: function(value) {
                                         return value + 'ms';
-                                    }
+                                    },
+                                    precision: 0
                                 }
                             },
                             x: {

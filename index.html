@@ -139,34 +139,41 @@
         /* Cards unificadas grid */
         .unified-cards-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
             margin-bottom: 25px;
         }
 
         /* Cards unificadas */
         .unified-card {
-            background: #f8f9fa;
+            background: white;
             border-radius: 10px;
-            padding: 14px;
-            border: 2px solid transparent;
+            padding: 0;
+            border: 2px solid #e0e0e0;
             transition: all 0.3s;
             min-height: 130px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         .unified-card.checking {
             border-color: #ffc107;
-            background: #fff9e6;
         }
 
         .unified-card.online {
             border-color: #4caf50;
-            background: #e8f5e9;
         }
 
         .unified-card.offline {
             border-color: #f44336;
-            background: #ffebee;
+        }
+
+        .unified-card-content {
+            padding: 14px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .unified-card-header {
@@ -189,10 +196,27 @@
         .unified-card-status {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
-            margin-bottom: 10px;
+            padding: 10px;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
+            margin-top: auto;
+        }
+
+        .unified-card.checking .unified-card-status {
+            background: #ffc107;
+            color: white;
+        }
+
+        .unified-card.online .unified-card-status {
+            background: #4caf50;
+            color: white;
+        }
+
+        .unified-card.offline .unified-card-status {
+            background: #f44336;
+            color: white;
         }
 
         .status-indicator {
@@ -200,23 +224,11 @@
             height: 10px;
             border-radius: 50%;
             display: inline-block;
-        }
-
-        .status-indicator.checking {
-            background: #ffc107;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        .status-indicator.online {
-            background: #4caf50;
-        }
-
-        .status-indicator.offline {
-            background: #f44336;
+            background: white;
         }
 
         .status-text {
-            color: #333;
+            color: white;
         }
 
         .unified-card-metrics {
@@ -422,6 +434,7 @@
             }
 
             .unified-cards-grid {
+                grid-template-columns: 1fr 1fr;
                 gap: 8px;
                 margin-bottom: 8px;
                 flex: 1;
@@ -431,11 +444,15 @@
             /* Cards cuadradas perfectas más pequeñas */
             .unified-card {
                 aspect-ratio: 1 / 1;
-                padding: 8px;
+                padding: 0;
                 min-height: 0;
+            }
+
+            .unified-card-content {
+                padding: 8px;
+                flex: 1;
                 display: flex;
                 flex-direction: column;
-                justify-content: space-between;
             }
 
             .unified-card-header {
@@ -453,12 +470,13 @@
 
             .unified-card-status {
                 font-size: 9px;
-                margin-bottom: 4px;
+                padding: 6px 4px;
+                margin-top: auto;
             }
 
             .status-indicator {
-                width: 7px;
-                height: 7px;
+                width: 6px;
+                height: 6px;
             }
 
             .unified-card-metrics {
@@ -591,8 +609,12 @@
             }
 
             .unified-card {
-                padding: 16px;
+                padding: 0;
                 min-height: auto;
+            }
+
+            .unified-card-content {
+                padding: 16px;
             }
 
             .model-label {
@@ -601,6 +623,7 @@
 
             .unified-card-status {
                 font-size: 13px;
+                padding: 12px;
             }
 
             .metric-label {
@@ -677,91 +700,99 @@
                 <!-- API Status Cards -->
                 <div class="unified-cards-grid">
             <div class="unified-card checking" id="fabian-flash-unified">
-                <div class="unified-card-header">
-                    <span class="model-icon">⚡</span>
-                    <span class="model-label">Fabián - Flash</span>
+                <div class="unified-card-content">
+                    <div class="unified-card-header">
+                        <span class="model-icon">⚡</span>
+                        <span class="model-label">Fabián - Flash</span>
+                    </div>
+                    <div class="unified-card-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Respuesta</span>
+                            <span class="metric-value" id="fabian-flash-time">--</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Uptime</span>
+                            <span class="metric-value uptime-value" id="fabian-flash-uptime">--</span>
+                        </div>
+                    </div>
+                    <div class="error-message" id="fabian-flash-error"></div>
                 </div>
                 <div class="unified-card-status">
                     <span class="status-indicator checking"></span>
                     <span class="status-text">Cargando...</span>
                 </div>
-                <div class="unified-card-metrics">
-                    <div class="metric">
-                        <span class="metric-label">Respuesta</span>
-                        <span class="metric-value" id="fabian-flash-time">--</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Uptime</span>
-                        <span class="metric-value uptime-value" id="fabian-flash-uptime">--</span>
-                    </div>
-                </div>
-                <div class="error-message" id="fabian-flash-error"></div>
             </div>
 
             <div class="unified-card checking" id="fabian-pro-unified">
-                <div class="unified-card-header">
-                    <span class="model-icon">💎</span>
-                    <span class="model-label">Fabián - Pro</span>
+                <div class="unified-card-content">
+                    <div class="unified-card-header">
+                        <span class="model-icon">💎</span>
+                        <span class="model-label">Fabián - Pro</span>
+                    </div>
+                    <div class="unified-card-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Respuesta</span>
+                            <span class="metric-value" id="fabian-pro-time">--</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Uptime</span>
+                            <span class="metric-value uptime-value" id="fabian-pro-uptime">--</span>
+                        </div>
+                    </div>
+                    <div class="error-message" id="fabian-pro-error"></div>
                 </div>
                 <div class="unified-card-status">
                     <span class="status-indicator checking"></span>
                     <span class="status-text">Cargando...</span>
                 </div>
-                <div class="unified-card-metrics">
-                    <div class="metric">
-                        <span class="metric-label">Respuesta</span>
-                        <span class="metric-value" id="fabian-pro-time">--</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Uptime</span>
-                        <span class="metric-value uptime-value" id="fabian-pro-uptime">--</span>
-                    </div>
-                </div>
-                <div class="error-message" id="fabian-pro-error"></div>
             </div>
 
             <div class="unified-card checking" id="vicente-flash-unified">
-                <div class="unified-card-header">
-                    <span class="model-icon">⚡</span>
-                    <span class="model-label">Vicente - Flash</span>
+                <div class="unified-card-content">
+                    <div class="unified-card-header">
+                        <span class="model-icon">⚡</span>
+                        <span class="model-label">Vicente - Flash</span>
+                    </div>
+                    <div class="unified-card-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Respuesta</span>
+                            <span class="metric-value" id="vicente-flash-time">--</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Uptime</span>
+                            <span class="metric-value uptime-value" id="vicente-flash-uptime">--</span>
+                        </div>
+                    </div>
+                    <div class="error-message" id="vicente-flash-error"></div>
                 </div>
                 <div class="unified-card-status">
                     <span class="status-indicator checking"></span>
                     <span class="status-text">Cargando...</span>
                 </div>
-                <div class="unified-card-metrics">
-                    <div class="metric">
-                        <span class="metric-label">Respuesta</span>
-                        <span class="metric-value" id="vicente-flash-time">--</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Uptime</span>
-                        <span class="metric-value uptime-value" id="vicente-flash-uptime">--</span>
-                    </div>
-                </div>
-                <div class="error-message" id="vicente-flash-error"></div>
             </div>
 
             <div class="unified-card checking" id="vicente-pro-unified">
-                <div class="unified-card-header">
-                    <span class="model-icon">💎</span>
-                    <span class="model-label">Vicente - Pro</span>
+                <div class="unified-card-content">
+                    <div class="unified-card-header">
+                        <span class="model-icon">💎</span>
+                        <span class="model-label">Vicente - Pro</span>
+                    </div>
+                    <div class="unified-card-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Respuesta</span>
+                            <span class="metric-value" id="vicente-pro-time">--</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Uptime</span>
+                            <span class="metric-value uptime-value" id="vicente-pro-uptime">--</span>
+                        </div>
+                    </div>
+                    <div class="error-message" id="vicente-pro-error"></div>
                 </div>
                 <div class="unified-card-status">
                     <span class="status-indicator checking"></span>
                     <span class="status-text">Cargando...</span>
                 </div>
-                <div class="unified-card-metrics">
-                    <div class="metric">
-                        <span class="metric-label">Respuesta</span>
-                        <span class="metric-value" id="vicente-pro-time">--</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Uptime</span>
-                        <span class="metric-value uptime-value" id="vicente-pro-uptime">--</span>
-                    </div>
-                </div>
-                <div class="error-message" id="vicente-pro-error"></div>
                 </div>
             </div>
 

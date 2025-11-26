@@ -405,17 +405,7 @@
             }
 
             .api-key-section {
-                margin-bottom: 10px;
-            }
-
-            .api-key-section h2 {
-                font-size: 14px !important;
-                margin-bottom: 8px !important;
-            }
-
-            .api-key-section p {
-                font-size: 10px !important;
-                margin-bottom: 8px !important;
+                display: none;
             }
 
             .main-layout {
@@ -430,15 +420,15 @@
                 flex: 0 0 50%;
                 display: flex;
                 flex-direction: column;
-                overflow: hidden;
+                overflow-y: auto;
+                overflow-x: hidden;
             }
 
             .unified-cards-grid {
                 grid-template-columns: 1fr 1fr;
-                gap: 8px;
-                margin-bottom: 8px;
-                flex: 1;
-                min-height: 0;
+                gap: 6px;
+                margin-bottom: 6px;
+                display: grid;
             }
 
             /* Cards cuadradas perfectas más pequeñas */
@@ -446,58 +436,64 @@
                 aspect-ratio: 1 / 1;
                 padding: 0;
                 min-height: 0;
+                max-height: 100%;
             }
 
             .unified-card-content {
-                padding: 8px;
+                padding: 6px;
                 flex: 1;
                 display: flex;
                 flex-direction: column;
+                overflow: hidden;
             }
 
             .unified-card-header {
-                margin-bottom: 4px;
+                margin-bottom: 2px;
             }
 
             .model-icon {
-                font-size: 12px;
+                font-size: 10px;
             }
 
             .model-label {
-                font-size: 10px;
-                line-height: 1;
+                font-size: 9px;
+                line-height: 1.1;
             }
 
             .unified-card-status {
-                font-size: 9px;
-                padding: 6px 4px;
+                font-size: 8px;
+                padding: 4px 2px;
                 margin-top: auto;
+                flex-shrink: 0;
             }
 
             .status-indicator {
-                width: 6px;
-                height: 6px;
+                width: 5px;
+                height: 5px;
             }
 
             .unified-card-metrics {
-                gap: 6px;
+                gap: 4px;
+                margin-top: 2px;
             }
 
             .metric-label {
                 font-size: 7px;
+                line-height: 1;
             }
 
             .metric-value {
-                font-size: 10px;
+                font-size: 9px;
+                line-height: 1.1;
             }
 
             .error-message {
-                font-size: 8px;
-                margin-top: 3px;
+                font-size: 7px;
+                margin-top: 2px;
             }
 
             .check-button {
-                margin-top: 0;
+                margin-top: 4px;
                 padding: 8px;
                 font-size: 11px;
                 flex-shrink: 0;
@@ -505,7 +501,7 @@
 
             .last-check {
                 font-size: 9px;
-                margin-top: 6px;
+                margin-top: 4px;
                 flex-shrink: 0;
             }
 
@@ -688,9 +684,6 @@
 
         <div class="api-key-section">
             <h2 style="color: #333; font-size: 18px; margin-bottom: 20px;">Estado de API Keys</h2>
-            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
-                Verificación automática cada hora vía GitHub Actions
-            </p>
         </div>
 
         <!-- Main Layout: 2 columnas en web -->
@@ -799,12 +792,6 @@
                 <button class="check-button" id="refreshBtn" title="Verificar estado de las APIs ahora mismo">
                     Verificar Ahora
                 </button>
-
-                <div style="text-align: center; margin-top: 8px;">
-                    <small style="color: #999; font-size: 11px;">
-                        Verificación automática cada hora
-                    </small>
-                </div>
 
                 <div class="last-check" id="lastCheck"></div>
             </div>

@@ -25,23 +25,26 @@
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
+            padding: 30px 25px;
             max-width: 600px;
             width: 100%;
+            transition: max-width 0.3s ease;
         }
 
         h1 {
             text-align: center;
             color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
+            margin-bottom: 8px;
+            font-size: 22px;
+            line-height: 1.2;
         }
 
         .subtitle {
             text-align: center;
             color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            line-height: 1.3;
         }
 
         .api-key-section {
@@ -113,96 +116,119 @@
             font-size: 12px;
         }
 
-        .models-grid {
+        /* Cards unificadas grid */
+        .unified-cards-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
         }
 
-        .model-card {
+        /* Cards unificadas */
+        .unified-card {
             background: #f8f9fa;
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 10px;
+            padding: 14px;
             border: 2px solid transparent;
             transition: all 0.3s;
+            min-height: 130px;
         }
 
-        .model-card.checking {
+        .unified-card.checking {
             border-color: #ffc107;
             background: #fff9e6;
         }
 
-        .model-card.online {
+        .unified-card.online {
             border-color: #4caf50;
             background: #e8f5e9;
         }
 
-        .model-card.offline {
+        .unified-card.offline {
             border-color: #f44336;
             background: #ffebee;
         }
 
-        .model-name {
-            font-weight: 700;
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 8px;
+        .unified-card-header {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            margin-bottom: 10px;
         }
 
-        .status-badge {
-            display: inline-flex;
+        .model-icon {
+            font-size: 16px;
+        }
+
+        .model-label {
+            font-weight: 700;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .unified-card-status {
+            display: flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 12px;
-            border-radius: 20px;
+            margin-bottom: 10px;
             font-size: 12px;
             font-weight: 600;
-            margin-top: 10px;
         }
 
-        .status-badge.checking {
-            background: #ffc107;
-            color: #000;
-        }
-
-        .status-badge.online {
-            background: #4caf50;
-            color: white;
-        }
-
-        .status-badge.offline {
-            background: #f44336;
-            color: white;
-        }
-
-        .status-icon {
-            width: 12px;
-            height: 12px;
+        .status-indicator {
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             display: inline-block;
         }
 
-        .status-icon.checking {
+        .status-indicator.checking {
             background: #ffc107;
             animation: pulse 1.5s ease-in-out infinite;
         }
 
-        .status-icon.online {
+        .status-indicator.online {
             background: #4caf50;
         }
 
-        .status-icon.offline {
+        .status-indicator.offline {
             background: #f44336;
         }
 
-        .response-time {
-            font-size: 12px;
-            color: #666;
+        .status-text {
+            color: #333;
+        }
+
+        .unified-card-metrics {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
             margin-top: 8px;
+        }
+
+        .metric {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex: 1;
+        }
+
+        .metric-label {
+            font-size: 10px;
+            color: #666;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .metric-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .uptime-value {
+            /* Color dinámico via JS */
         }
 
         .error-message {
@@ -214,15 +240,16 @@
 
         .check-button {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 5px;
         }
 
         .check-button:hover {
@@ -276,44 +303,95 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        /* Mejoras de responsividad para el timeseries header */
+        /* Timeseries header */
         .timeseries-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: 40px 0 20px 0;
-            gap: 15px;
+            margin: 30px 0 15px 0;
+            gap: 12px;
         }
 
         .timeseries-header h3 {
             color: #333;
-            font-size: 16px;
+            font-size: 14px;
             margin: 0;
+            font-weight: 600;
         }
 
+        #timeRangePicker {
+            padding: 7px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            background: white;
+            color: #333;
+        }
+
+        /* Chart container */
+        .chart-container {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        #historyChart {
+            max-height: 280px !important;
+            height: 280px !important;
+        }
+
+        /* Mobile (≤600px) */
         @media (max-width: 600px) {
-            .models-grid {
-                grid-template-columns: 1fr;
+            body {
+                padding: 15px 10px;
             }
 
             .container {
-                padding: 30px 20px;
+                padding: 25px 18px;
+                border-radius: 16px;
             }
 
             h1 {
-                font-size: 24px;
+                font-size: 20px;
+                margin-bottom: 6px;
             }
 
             .subtitle {
-                font-size: 13px;
+                font-size: 11px;
+                margin-bottom: 15px;
             }
 
-            /* Selector de tiempo en mobile */
+            .api-key-section {
+                margin-bottom: 15px;
+            }
+
+            .unified-cards-grid {
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            .unified-card {
+                padding: 12px;
+                min-height: 120px;
+            }
+
+            .check-button {
+                margin-top: 0;
+            }
+
+            .last-check {
+                font-size: 11px;
+                margin-top: 15px;
+            }
+
             .timeseries-header {
                 flex-direction: column;
                 align-items: stretch;
-                margin: 30px 0 15px 0;
-                gap: 12px;
+                margin: 20px 0 12px 0;
+                gap: 10px;
             }
 
             .timeseries-header h3 {
@@ -326,35 +404,95 @@
                 width: 100%;
             }
 
-            /* Estadísticas de uptime más compactas */
-            .uptime-grid {
-                grid-template-columns: 1fr 1fr !important;
-                gap: 12px !important;
-            }
-
-            .uptime-card {
-                padding: 15px !important;
-            }
-
-            .uptime-card-title {
-                font-size: 11px !important;
-            }
-
-            .uptime-card-value {
-                font-size: 24px !important;
-            }
-
-            .uptime-card-subtitle {
-                font-size: 10px !important;
-            }
-
-            /* Chart canvas más alto en mobile */
             .chart-container {
-                padding: 15px !important;
+                padding: 12px;
+                margin-bottom: 15px;
+            }
+
+            .footer {
+                font-size: 11px;
+                margin-top: 15px;
+                padding-top: 15px;
+            }
+        }
+
+        /* Tablet (601px - 767px) */
+        @media (min-width: 601px) and (max-width: 767px) {
+            .container {
+                max-width: 700px;
+                padding: 35px 30px;
+            }
+
+            .unified-cards-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
             }
 
             #historyChart {
-                height: 250px !important;
+                max-height: 350px !important;
+                height: 350px !important;
+            }
+        }
+
+        /* Web (≥768px) */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1200px;
+                padding: 40px;
+            }
+
+            .unified-cards-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+
+            .unified-card {
+                padding: 18px;
+                min-height: 140px;
+            }
+
+            .model-label {
+                font-size: 16px;
+            }
+
+            .unified-card-status {
+                font-size: 13px;
+            }
+
+            .metric-label {
+                font-size: 11px;
+            }
+
+            .metric-value {
+                font-size: 15px;
+            }
+
+            .check-button {
+                padding: 14px;
+                font-size: 16px;
+            }
+
+            .timeseries-header {
+                margin: 40px 0 20px 0;
+            }
+
+            .timeseries-header h3 {
+                font-size: 16px;
+            }
+
+            #timeRangePicker {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+
+            .chart-container {
+                padding: 25px;
+            }
+
+            #historyChart {
+                max-height: 500px !important;
+                height: 500px !important;
             }
         }
 
@@ -375,122 +513,122 @@
 </head>
 <body>
     <div class="container">
-        <h1>🤖 Gemini API Health Checker</h1>
+        <h1>Gemini API Health Checker</h1>
         <p class="subtitle">Verifica el estado de los modelos de Gemini en tiempo real</p>
 
-                <div class="api-key-section">
-            <h2 style="color: #333; font-size: 18px; margin-bottom: 20px;">👥 Estado de API Keys</h2>
+        <div class="api-key-section">
+            <h2 style="color: #333; font-size: 18px; margin-bottom: 20px;">Estado de API Keys</h2>
             <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
                 Verificación automática cada hora vía GitHub Actions
             </p>
         </div>
 
-        <!-- Fabián Muñoz Section -->
-        <h3 style="color: #333; font-size: 16px; margin: 20px 0 15px 0; display: flex; align-items: center; gap: 8px;">
-            <span>👤</span> Fabián Muñoz
-        </h3>
-        <div class="models-grid">
-            <div class="model-card" id="fabian-flash-card">
-                <div class="model-name">
-                    <span>⚡</span>
-                    Gemini 2.5 Flash
+        <!-- API Status Cards -->
+        <div class="unified-cards-grid">
+            <div class="unified-card checking" id="fabian-flash-unified">
+                <div class="unified-card-header">
+                    <span class="model-icon">⚡</span>
+                    <span class="model-label">Fabián - Flash</span>
                 </div>
-                <div class="status-badge checking">
-                    <span class="status-icon checking"></span>
-                    Cargando...
+                <div class="unified-card-status">
+                    <span class="status-indicator checking"></span>
+                    <span class="status-text">Cargando...</span>
                 </div>
-                <div class="response-time" id="fabian-flash-time"></div>
+                <div class="unified-card-metrics">
+                    <div class="metric">
+                        <span class="metric-label">Respuesta</span>
+                        <span class="metric-value" id="fabian-flash-time">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Uptime</span>
+                        <span class="metric-value uptime-value" id="fabian-flash-uptime">--</span>
+                    </div>
+                </div>
                 <div class="error-message" id="fabian-flash-error"></div>
             </div>
 
-            <div class="model-card" id="fabian-pro-card">
-                <div class="model-name">
-                    <span>💎</span>
-                    Gemini 2.5 Pro
+            <div class="unified-card checking" id="fabian-pro-unified">
+                <div class="unified-card-header">
+                    <span class="model-icon">💎</span>
+                    <span class="model-label">Fabián - Pro</span>
                 </div>
-                <div class="status-badge checking">
-                    <span class="status-icon checking"></span>
-                    Cargando...
+                <div class="unified-card-status">
+                    <span class="status-indicator checking"></span>
+                    <span class="status-text">Cargando...</span>
                 </div>
-                <div class="response-time" id="fabian-pro-time"></div>
+                <div class="unified-card-metrics">
+                    <div class="metric">
+                        <span class="metric-label">Respuesta</span>
+                        <span class="metric-value" id="fabian-pro-time">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Uptime</span>
+                        <span class="metric-value uptime-value" id="fabian-pro-uptime">--</span>
+                    </div>
+                </div>
                 <div class="error-message" id="fabian-pro-error"></div>
             </div>
-        </div>
 
-        <!-- Vicente Chacón Section -->
-        <h3 style="color: #333; font-size: 16px; margin: 30px 0 15px 0; display: flex; align-items: center; gap: 8px;">
-            <span>👤</span> Vicente Chacón
-        </h3>
-        <div class="models-grid">
-            <div class="model-card" id="vicente-flash-card">
-                <div class="model-name">
-                    <span>⚡</span>
-                    Gemini 2.5 Flash
+            <div class="unified-card checking" id="vicente-flash-unified">
+                <div class="unified-card-header">
+                    <span class="model-icon">⚡</span>
+                    <span class="model-label">Vicente - Flash</span>
                 </div>
-                <div class="status-badge checking">
-                    <span class="status-icon checking"></span>
-                    Cargando...
+                <div class="unified-card-status">
+                    <span class="status-indicator checking"></span>
+                    <span class="status-text">Cargando...</span>
                 </div>
-                <div class="response-time" id="vicente-flash-time"></div>
+                <div class="unified-card-metrics">
+                    <div class="metric">
+                        <span class="metric-label">Respuesta</span>
+                        <span class="metric-value" id="vicente-flash-time">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Uptime</span>
+                        <span class="metric-value uptime-value" id="vicente-flash-uptime">--</span>
+                    </div>
+                </div>
                 <div class="error-message" id="vicente-flash-error"></div>
             </div>
 
-            <div class="model-card" id="vicente-pro-card">
-                <div class="model-name">
-                    <span>💎</span>
-                    Gemini 2.5 Pro
+            <div class="unified-card checking" id="vicente-pro-unified">
+                <div class="unified-card-header">
+                    <span class="model-icon">💎</span>
+                    <span class="model-label">Vicente - Pro</span>
                 </div>
-                <div class="status-badge checking">
-                    <span class="status-icon checking"></span>
-                    Cargando...
+                <div class="unified-card-status">
+                    <span class="status-indicator checking"></span>
+                    <span class="status-text">Cargando...</span>
                 </div>
-                <div class="response-time" id="vicente-pro-time"></div>
+                <div class="unified-card-metrics">
+                    <div class="metric">
+                        <span class="metric-label">Respuesta</span>
+                        <span class="metric-value" id="vicente-pro-time">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Uptime</span>
+                        <span class="metric-value uptime-value" id="vicente-pro-uptime">--</span>
+                    </div>
+                </div>
                 <div class="error-message" id="vicente-pro-error"></div>
             </div>
         </div>
 
         <button class="check-button" id="refreshBtn" title="Verificar estado de las APIs ahora mismo">
-            🔄 Verificar APIs Ahora
+            Verificar Ahora
         </button>
-        
-        <div style="text-align: center; margin-top: 10px;">
-            <small style="color: #999;">
-                Verificación automática cada hora • Click para verificar manualmente
+
+        <div style="text-align: center; margin-top: 8px;">
+            <small style="color: #999; font-size: 11px;">
+                Verificación automática cada hora
             </small>
         </div>
 
         <div class="last-check" id="lastCheck"></div>
 
-        <!-- Uptime Statistics Section -->
-        <div style="margin: 40px 0 30px 0;">
-            <h3 style="color: #333; font-size: 16px; margin-bottom: 20px;">📈 Estadísticas de Disponibilidad</h3>
-            <div class="uptime-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                <div class="uptime-card" style="background: #e0e0e0; border-radius: 12px; padding: 20px; color: white; transition: background 0.3s;">
-                    <div class="uptime-card-title" style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">Fabián - Flash</div>
-                    <div class="uptime-card-value" style="font-size: 28px; font-weight: 700;" id="uptime-fabian-flash">--</div>
-                    <div class="uptime-card-subtitle" style="font-size: 11px; opacity: 0.8; margin-top: 5px;">Uptime</div>
-                </div>
-                <div class="uptime-card" style="background: #e0e0e0; border-radius: 12px; padding: 20px; color: white; transition: background 0.3s;">
-                    <div class="uptime-card-title" style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">Fabián - Pro</div>
-                    <div class="uptime-card-value" style="font-size: 28px; font-weight: 700;" id="uptime-fabian-pro">--</div>
-                    <div class="uptime-card-subtitle" style="font-size: 11px; opacity: 0.8; margin-top: 5px;">Uptime</div>
-                </div>
-                <div class="uptime-card" style="background: #e0e0e0; border-radius: 12px; padding: 20px; color: white; transition: background 0.3s;">
-                    <div class="uptime-card-title" style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">Vicente - Flash</div>
-                    <div class="uptime-card-value" style="font-size: 28px; font-weight: 700;" id="uptime-vicente-flash">--</div>
-                    <div class="uptime-card-subtitle" style="font-size: 11px; opacity: 0.8; margin-top: 5px;">Uptime</div>
-                </div>
-                <div class="uptime-card" style="background: #e0e0e0; border-radius: 12px; padding: 20px; color: white; transition: background 0.3s;">
-                    <div class="uptime-card-title" style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">Vicente - Pro</div>
-                    <div class="uptime-card-value" style="font-size: 28px; font-weight: 700;" id="uptime-vicente-pro">--</div>
-                    <div class="uptime-card-subtitle" style="font-size: 11px; opacity: 0.8; margin-top: 5px;">Uptime</div>
-                </div>
-            </div>
-        </div>
-
         <!-- Historical Data Section -->
         <div class="timeseries-header">
-            <h3>📊 Historial de Tiempo de Respuesta</h3>
+            <h3>Historial de Respuesta</h3>
             <select id="timeRangePicker" style="padding: 8px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; background: white; color: #333;">
                 <option value="5">Últimos 5 minutos</option>
                 <option value="15">Últimos 15 minutos</option>
@@ -540,36 +678,45 @@
         }
 
         function updateCard(owner, model, data) {
-            const cardId = `${owner}-${model}-card`;
+            const cardId = `${owner}-${model}-unified`;
             const timeId = `${owner}-${model}-time`;
             const errorId = `${owner}-${model}-error`;
-            
+            const uptimeId = `${owner}-${model}-uptime`;
+
             const card = document.getElementById(cardId);
             const timeEl = document.getElementById(timeId);
             const errorEl = document.getElementById(errorId);
-            
+            const uptimeEl = document.getElementById(uptimeId);
+
             if (!card) return;
-            
+
             const status = data.status; // 'online' or 'offline'
-            
+
             // Actualizar clases del card
-            card.className = `model-card ${status}`;
-            
-            // Actualizar badge de estado
-            const badge = card.querySelector('.status-badge');
-            const icon = card.querySelector('.status-icon');
-            
-            badge.className = `status-badge ${status}`;
-            icon.className = `status-icon ${status}`;
-            
+            card.className = `unified-card ${status}`;
+
+            // Actualizar indicador y texto de estado
+            const statusIndicator = card.querySelector('.status-indicator');
+            const statusText = card.querySelector('.status-text');
+
+            statusIndicator.className = `status-indicator ${status}`;
+
             if (status === 'online') {
-                badge.innerHTML = `<span class="status-icon online"></span>✅ Disponible`;
-                timeEl.textContent = `Tiempo de respuesta: ${data.responseTime}ms`;
+                statusText.textContent = '✓ Disponible';
+                timeEl.textContent = `${data.responseTime}ms`;
                 errorEl.textContent = '';
+
+                if (uptimeEl) {
+                    uptimeEl.style.color = '#4caf50';
+                }
             } else {
-                badge.innerHTML = `<span class="status-icon offline"></span>❌ No disponible`;
-                timeEl.textContent = data.responseTime ? `Tiempo: ${data.responseTime}ms` : '';
+                statusText.textContent = '✗ No disponible';
+                timeEl.textContent = data.responseTime ? `${data.responseTime}ms` : '--';
                 errorEl.textContent = data.error || 'Error desconocido';
+
+                if (uptimeEl) {
+                    uptimeEl.style.color = '#f44336';
+                }
             }
         }
 
@@ -737,7 +884,9 @@
                         borderColor: '#667eea',
                         backgroundColor: 'rgba(102, 126, 234, 0.1)',
                         tension: 0.4,
-                        pointRadius: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: filteredHistory.map(h => h.fabian.pro.status === 'online' ? '#667eea' : '#f44336'),
+                        pointBorderColor: filteredHistory.map(h => h.fabian.pro.status === 'online' ? '#667eea' : '#f44336'),
                         spanGaps: true
                     },
                     {
@@ -746,7 +895,9 @@
                         borderColor: '#764ba2',
                         backgroundColor: 'rgba(118, 75, 162, 0.1)',
                         tension: 0.4,
-                        pointRadius: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: filteredHistory.map(h => h.fabian.flash && h.fabian.flash.status === 'online' ? '#764ba2' : '#f44336'),
+                        pointBorderColor: filteredHistory.map(h => h.fabian.flash && h.fabian.flash.status === 'online' ? '#764ba2' : '#f44336'),
                         spanGaps: true
                     },
                     {
@@ -755,7 +906,9 @@
                         borderColor: '#4caf50',
                         backgroundColor: 'rgba(76, 175, 80, 0.1)',
                         tension: 0.4,
-                        pointRadius: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: filteredHistory.map(h => h.vicente.pro.status === 'online' ? '#4caf50' : '#f44336'),
+                        pointBorderColor: filteredHistory.map(h => h.vicente.pro.status === 'online' ? '#4caf50' : '#f44336'),
                         spanGaps: true
                     },
                     {
@@ -764,7 +917,9 @@
                         borderColor: '#ffc107',
                         backgroundColor: 'rgba(255, 193, 7, 0.1)',
                         tension: 0.4,
-                        pointRadius: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: filteredHistory.map(h => h.vicente.flash && h.vicente.flash.status === 'online' ? '#ffc107' : '#f44336'),
+                        pointBorderColor: filteredHistory.map(h => h.vicente.flash && h.vicente.flash.status === 'online' ? '#ffc107' : '#f44336'),
                         spanGaps: true
                     }
                 ];
@@ -927,25 +1082,36 @@
             const timeRange = parseInt(document.getElementById('timeRangePicker').value);
             const now = new Date();
             const cutoffTime = new Date(now.getTime() - (timeRange * 60 * 1000));
-            
+
             const filteredHistory = fullHistory.filter(h => {
                 const entryTime = new Date(h.timestamp);
                 return entryTime >= cutoffTime;
             });
-            
-            // Calcular y actualizar uptime para cada modelo con colores
+
+            // Calcular y actualizar uptime para cada modelo en las cards unificadas
             const models = [
-                { id: 'uptime-fabian-flash', owner: 'fabian', model: 'flash' },
-                { id: 'uptime-fabian-pro', owner: 'fabian', model: 'pro' },
-                { id: 'uptime-vicente-flash', owner: 'vicente', model: 'flash' },
-                { id: 'uptime-vicente-pro', owner: 'vicente', model: 'pro' }
+                { id: 'fabian-flash-uptime', owner: 'fabian', model: 'flash' },
+                { id: 'fabian-pro-uptime', owner: 'fabian', model: 'pro' },
+                { id: 'vicente-flash-uptime', owner: 'vicente', model: 'flash' },
+                { id: 'vicente-pro-uptime', owner: 'vicente', model: 'pro' }
             ];
-            
+
             models.forEach(({ id, owner, model }) => {
                 const uptime = parseFloat(calculateUptime(filteredHistory, owner, model));
                 const element = document.getElementById(id);
-                element.textContent = uptime.toFixed(1) + '%';
-                element.parentElement.style.background = getUptimeColor(uptime);
+
+                if (element) {
+                    element.textContent = uptime.toFixed(1) + '%';
+
+                    // Aplicar color semáforo al texto
+                    if (uptime >= 90) {
+                        element.style.color = '#4caf50';  // Verde
+                    } else if (uptime >= 80) {
+                        element.style.color = '#ff9800';  // Naranja
+                    } else {
+                        element.style.color = '#f44336';  // Rojo
+                    }
+                }
             });
         }
         

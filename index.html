@@ -276,18 +276,85 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
+        /* Mejoras de responsividad para el timeseries header */
+        .timeseries-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 40px 0 20px 0;
+            gap: 15px;
+        }
+
+        .timeseries-header h3 {
+            color: #333;
+            font-size: 16px;
+            margin: 0;
+        }
+
         @media (max-width: 600px) {
             .models-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .container {
                 padding: 30px 20px;
             }
 
+            h1 {
+                font-size: 24px;
+            }
+
+            .subtitle {
+                font-size: 13px;
+            }
+
+            /* Selector de tiempo en mobile */
+            .timeseries-header {
+                flex-direction: column;
+                align-items: stretch;
+                margin: 30px 0 15px 0;
+                gap: 12px;
+            }
+
+            .timeseries-header h3 {
+                text-align: center;
+            }
+
             #timeRangePicker {
-                font-size: 12px;
-                padding: 6px 12px;
+                font-size: 13px;
+                padding: 10px 14px;
+                width: 100%;
+            }
+
+            /* Estadísticas de uptime más compactas */
+            .uptime-grid {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 12px !important;
+            }
+
+            .uptime-card {
+                padding: 15px !important;
+            }
+
+            .uptime-card-title {
+                font-size: 11px !important;
+            }
+
+            .uptime-card-value {
+                font-size: 24px !important;
+            }
+
+            .uptime-card-subtitle {
+                font-size: 10px !important;
+            }
+
+            /* Chart canvas más alto en mobile */
+            .chart-container {
+                padding: 15px !important;
+            }
+
+            #historyChart {
+                height: 250px !important;
             }
         }
 
@@ -397,33 +464,33 @@
         <!-- Uptime Statistics Section -->
         <div style="margin: 40px 0 30px 0;">
             <h3 style="color: #333; font-size: 16px; margin-bottom: 20px;">📈 Estadísticas de Disponibilidad</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                <div style="background: #e0e0e0; border-radius: 12px; padding: 20px; color: white; transition: background 0.3s;">
-                    <div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">Fabián - Flash</div>
-                    <div style="font-size: 28px; font-weight: 700;" id="uptime-fabian-flash">--</div>
-                    <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">Uptime</div>
+            <div class="uptime-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <div class="uptime-card" style="background: #e0e0e0; border-radius: 12px; padding: 20px; color: white; transition: background 0.3s;">
+                    <div class="uptime-card-title" style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">Fabián - Flash</div>
+                    <div class="uptime-card-value" style="font-size: 28px; font-weight: 700;" id="uptime-fabian-flash">--</div>
+                    <div class="uptime-card-subtitle" style="font-size: 11px; opacity: 0.8; margin-top: 5px;">Uptime</div>
                 </div>
-                <div style="background: #e0e0e0; border-radius: 12px; padding: 20px; color: white; transition: background 0.3s;">
-                    <div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">Fabián - Pro</div>
-                    <div style="font-size: 28px; font-weight: 700;" id="uptime-fabian-pro">--</div>
-                    <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">Uptime</div>
+                <div class="uptime-card" style="background: #e0e0e0; border-radius: 12px; padding: 20px; color: white; transition: background 0.3s;">
+                    <div class="uptime-card-title" style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">Fabián - Pro</div>
+                    <div class="uptime-card-value" style="font-size: 28px; font-weight: 700;" id="uptime-fabian-pro">--</div>
+                    <div class="uptime-card-subtitle" style="font-size: 11px; opacity: 0.8; margin-top: 5px;">Uptime</div>
                 </div>
-                <div style="background: #e0e0e0; border-radius: 12px; padding: 20px; color: white; transition: background 0.3s;">
-                    <div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">Vicente - Flash</div>
-                    <div style="font-size: 28px; font-weight: 700;" id="uptime-vicente-flash">--</div>
-                    <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">Uptime</div>
+                <div class="uptime-card" style="background: #e0e0e0; border-radius: 12px; padding: 20px; color: white; transition: background 0.3s;">
+                    <div class="uptime-card-title" style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">Vicente - Flash</div>
+                    <div class="uptime-card-value" style="font-size: 28px; font-weight: 700;" id="uptime-vicente-flash">--</div>
+                    <div class="uptime-card-subtitle" style="font-size: 11px; opacity: 0.8; margin-top: 5px;">Uptime</div>
                 </div>
-                <div style="background: #e0e0e0; border-radius: 12px; padding: 20px; color: white; transition: background 0.3s;">
-                    <div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">Vicente - Pro</div>
-                    <div style="font-size: 28px; font-weight: 700;" id="uptime-vicente-pro">--</div>
-                    <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">Uptime</div>
+                <div class="uptime-card" style="background: #e0e0e0; border-radius: 12px; padding: 20px; color: white; transition: background 0.3s;">
+                    <div class="uptime-card-title" style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">Vicente - Pro</div>
+                    <div class="uptime-card-value" style="font-size: 28px; font-weight: 700;" id="uptime-vicente-pro">--</div>
+                    <div class="uptime-card-subtitle" style="font-size: 11px; opacity: 0.8; margin-top: 5px;">Uptime</div>
                 </div>
             </div>
         </div>
 
         <!-- Historical Data Section -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin: 40px 0 20px 0;">
-            <h3 style="color: #333; font-size: 16px; margin: 0;">📊 Historial de Tiempo de Respuesta</h3>
+        <div class="timeseries-header">
+            <h3>📊 Historial de Tiempo de Respuesta</h3>
             <select id="timeRangePicker" style="padding: 8px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; background: white; color: #333;">
                 <option value="5">Últimos 5 minutos</option>
                 <option value="15">Últimos 15 minutos</option>
@@ -436,8 +503,8 @@
                 <option value="10080">Última semana</option>
             </select>
         </div>
-        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-            <canvas id="historyChart" height="150"></canvas>
+        <div class="chart-container" style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+            <canvas id="historyChart" style="max-height: 250px;"></canvas>
         </div>
 
         <div class="footer">
@@ -707,6 +774,9 @@
                     historyChart.destroy();
                 }
                 
+                // Detectar si es mobile
+                const isMobile = window.innerWidth <= 600;
+
                 // Crear nueva gráfica
                 const ctx = document.getElementById('historyChart').getContext('2d');
                 historyChart = new Chart(ctx, {
@@ -717,14 +787,21 @@
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
+                        maintainAspectRatio: false,
                         plugins: {
                             title: {
                                 display: false
                             },
                             legend: {
                                 display: true,
-                                position: 'bottom'
+                                position: isMobile ? 'top' : 'bottom',
+                                labels: {
+                                    boxWidth: isMobile ? 8 : 12,
+                                    font: {
+                                        size: isMobile ? 10 : 12
+                                    },
+                                    padding: isMobile ? 8 : 10
+                                }
                             },
                             tooltip: {
                                 callbacks: {
@@ -747,10 +824,16 @@
                             y: {
                                 beginAtZero: true,
                                 title: {
-                                    display: true,
-                                    text: 'Tiempo de respuesta (ms)'
+                                    display: !isMobile,
+                                    text: 'Tiempo de respuesta (ms)',
+                                    font: {
+                                        size: isMobile ? 10 : 12
+                                    }
                                 },
                                 ticks: {
+                                    font: {
+                                        size: isMobile ? 9 : 11
+                                    },
                                     callback: function(value) {
                                         return value + 'ms';
                                     }
@@ -770,14 +853,20 @@
                                 min: cutoffTime.getTime(),
                                 max: now.getTime(),
                                 title: {
-                                    display: true,
-                                    text: 'Tiempo'
+                                    display: !isMobile,
+                                    text: 'Tiempo',
+                                    font: {
+                                        size: isMobile ? 10 : 12
+                                    }
                                 },
                                 ticks: {
-                                    maxRotation: 45,
-                                    minRotation: 45,
+                                    maxRotation: isMobile ? 45 : 45,
+                                    minRotation: isMobile ? 45 : 45,
                                     autoSkip: true,
-                                    maxTicksLimit: timeRange <= 60 ? 12 : 20
+                                    maxTicksLimit: isMobile ? 6 : (timeRange <= 60 ? 12 : 20),
+                                    font: {
+                                        size: isMobile ? 9 : 11
+                                    }
                                 }
                             }
                         }

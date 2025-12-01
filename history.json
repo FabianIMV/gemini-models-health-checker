@@ -1,32 +1,5 @@
 [
   {
-    "timestamp": "2025-11-24T20:01:03.556Z",
-    "fabian": {
-      "flash": {
-        "status": "online",
-        "responseTime": 4614,
-        "error": ""
-      },
-      "pro": {
-        "status": "online",
-        "responseTime": 10440,
-        "error": ""
-      }
-    },
-    "vicente": {
-      "flash": {
-        "status": "online",
-        "responseTime": 3145,
-        "error": ""
-      },
-      "pro": {
-        "status": "online",
-        "responseTime": 13145,
-        "error": ""
-      }
-    }
-  },
-  {
     "timestamp": "2025-11-24T21:01:15.865Z",
     "fabian": {
       "flash": {
@@ -4531,6 +4504,33 @@
       "pro": {
         "status": "online",
         "responseTime": 10510,
+        "error": ""
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-01T21:01:14.131Z",
+    "fabian": {
+      "flash": {
+        "status": "online",
+        "responseTime": 4979,
+        "error": ""
+      },
+      "pro": {
+        "status": "online",
+        "responseTime": 14757,
+        "error": ""
+      }
+    },
+    "vicente": {
+      "flash": {
+        "status": "online",
+        "responseTime": 2392,
+        "error": ""
+      },
+      "pro": {
+        "status": "online",
+        "responseTime": 10819,
         "error": ""
       }
     }

@@ -1,26 +1,26 @@
 {
-  "timestamp": "2025-12-05T08:01:13.802Z",
+  "timestamp": "2025-12-05T10:01:20.892Z",
   "fabian": {
     "flash": {
-      "status": "online",
-      "responseTime": 5213,
-      "error": ""
+      "status": "offline",
+      "responseTime": 0,
+      "error": "[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later."
     },
     "pro": {
       "status": "online",
-      "responseTime": 12433,
+      "responseTime": 10154,
       "error": ""
     }
   },
   "vicente": {
     "flash": {
       "status": "online",
-      "responseTime": 5369,
+      "responseTime": 5335,
       "error": ""
     },
     "pro": {
       "status": "online",
-      "responseTime": 11474,
+      "responseTime": 12180,
       "error": ""
     }
   }

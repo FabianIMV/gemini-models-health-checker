@@ -859,6 +859,43 @@
             }
         }
 
+        // Función para formatear errores de manera amigable
+        function formatError(error) {
+            if (!error) return 'Error desconocido';
+            
+            // Detectar error 429 (quota exceeded)
+            if (error.includes('429') || error.toLowerCase().includes('quota') || error.toLowerCase().includes('rate limit')) {
+                return '⚠️ Cuota excedida';
+            }
+            
+            // Detectar timeout
+            if (error.toLowerCase().includes('timeout') || error.toLowerCase().includes('timed out')) {
+                return '⏱️ Timeout';
+            }
+            
+            // Detectar error de red
+            if (error.toLowerCase().includes('network') || error.toLowerCase().includes('fetch')) {
+                return '🌐 Error de red';
+            }
+            
+            // Detectar error 500
+            if (error.includes('500') || error.toLowerCase().includes('internal server')) {
+                return '🔧 Error del servidor';
+            }
+            
+            // Detectar error 401/403
+            if (error.includes('401') || error.includes('403') || error.toLowerCase().includes('unauthorized') || error.toLowerCase().includes('forbidden')) {
+                return '🔑 Error de autenticación';
+            }
+            
+            // Si el error es muy largo, truncarlo
+            if (error.length > 50) {
+                return error.substring(0, 47) + '...';
+            }
+            
+            return error;
+        }
+
         function updateCard(owner, model, data) {
             const cardId = `${owner}-${model}-unified`;
             const timeId = `${owner}-${model}-time`;
@@ -894,7 +931,8 @@
             } else {
                 statusText.textContent = '✗ No disponible';
                 timeEl.textContent = data.responseTime ? `${data.responseTime}ms` : '--';
-                errorEl.textContent = data.error || 'Error desconocido';
+                errorEl.textContent = formatError(data.error);
+                errorEl.title = data.error || ''; // Tooltip con error completo
 
                 if (uptimeEl) {
                     uptimeEl.style.color = '#f44336';

@@ -1,82 +1,84 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const fs = require('fs');
+const fs = require('fs').promises;
 
-const apiKeys = {
-  fabian: process.env.GEMINI_API_KEY_FABIAN,
-  vicente: process.env.GEMINI_API_KEY_VICENTE
+const CONFIG = {
+  owners: [
+    { id: 'fabian', name: 'Fabián', key: process.env.GEMINI_API_KEY_FABIAN },
+    { id: 'vicente', name: 'Vicente', key: process.env.GEMINI_API_KEY_VICENTE }
+  ],
+  models: [
+    { key: 'flash', name: 'gemini-2.5-flash' },
+    { key: 'pro', name: 'gemini-2.5-pro' }
+  ],
+  maxHistoryEntries: 168
 };
 
-const models = ['gemini-2.5-flash', 'gemini-2.5-pro'];
-
-async function checkModel(owner, apiKey, modelName) {
+async function checkModel(ownerName, apiKey, modelName) {
   if (!apiKey) {
-    console.log(`⚠️ ${owner} - ${modelName}: Sin API key configurada`);
-    return {
-      status: 'offline',
-      responseTime: 0,
-      error: 'API key no configurada'
-    };
+    console.log(`⚠️ ${ownerName} - ${modelName}: Sin API key configurada`);
+    return { status: 'offline', responseTime: 0, error: 'API key no configurada' };
   }
-  
+
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: modelName });
+    
     const start = Date.now();
     await model.generateContent('OK');
     const responseTime = Date.now() - start;
-    
-    console.log(`✅ ${owner} - ${modelName}: DISPONIBLE (${responseTime}ms)`);
-    
-    return {
-      status: 'online',
-      responseTime,
-      error: ''
-    };
+
+    console.log(`✅ ${ownerName} - ${modelName}: DISPONIBLE (${responseTime}ms)`);
+    return { status: 'online', responseTime, error: '' };
   } catch (error) {
-    console.log(`❌ ${owner} - ${modelName}: ERROR - ${error.message}`);
-    
-    return {
-      status: 'offline',
-      responseTime: 0,
-      error: error.message
-    };
+    console.log(`❌ ${ownerName} - ${modelName}: ERROR - ${error.message}`);
+    return { status: 'offline', responseTime: 0, error: error.message };
   }
+}
+
+async function updateHistory(newResults) {
+  let history = [];
+  try {
+    const data = await fs.readFile('history.json', 'utf8');
+    history = JSON.parse(data);
+  } catch {
+    console.log('Creando nuevo archivo de historial...');
+  }
+
+  history.push(newResults);
+
+  if (history.length > CONFIG.maxHistoryEntries) {
+    history = history.slice(-CONFIG.maxHistoryEntries);
+  }
+
+  await fs.writeFile('history.json', JSON.stringify(history, null, 2));
 }
 
 async function main() {
   const timestamp = new Date().toISOString();
-  const results = {
-    timestamp,
-    fabian: {
-      flash: await checkModel('Fabián', apiKeys.fabian, 'gemini-2.5-flash'),
-      pro: await checkModel('Fabián', apiKeys.fabian, 'gemini-2.5-pro')
-    },
-    vicente: {
-      flash: await checkModel('Vicente', apiKeys.vicente, 'gemini-2.5-flash'),
-      pro: await checkModel('Vicente', apiKeys.vicente, 'gemini-2.5-pro')
-    }
-  };
-  
-  // Guardar status actual
-  fs.writeFileSync('status.json', JSON.stringify(results, null, 2));
-  
-  // Agregar a historial
-  let history = [];
-  try {
-    history = JSON.parse(fs.readFileSync('history.json', 'utf8'));
-  } catch (e) {
-    console.log('Creando nuevo archivo de historial...');
-  }
-  
-  history.push(results);
-  
-  // Mantener solo últimas 168 horas (7 días)
-  if (history.length > 168) {
-    history = history.slice(-168);
-  }
-  
-  fs.writeFileSync('history.json', JSON.stringify(history, null, 2));
-  
+  const results = { timestamp };
+
+  // Run all health checks concurrently across all owners and models
+  await Promise.all(
+    CONFIG.owners.map(async (owner) => {
+      results[owner.id] = {};
+      await Promise.all(
+        CONFIG.models.map(async (model) => {
+          results[owner.id][model.key] = await checkModel(
+            owner.name,
+            owner.key,
+            model.name
+          );
+        })
+      );
+    })
+  );
+
+  // Write status and append history asynchronously
+  await Promise.all([
+    fs.writeFile('status.json', JSON.stringify(results, null, 2)),
+    updateHistory(results)
+  ]);
+
   console.log('\n✅ Status y historial actualizados');
 }
 

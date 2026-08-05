@@ -2,58 +2,72 @@ name: Health Check
 
 on:
   schedule:
-    # Corre cada hora (a las :00 de cada hora)
+    # Runs every hour
     - cron: '0 * * * *'
-  workflow_dispatch: # Permite ejecución manual con el botón
+  workflow_dispatch:
+
+# Prevents concurrent runs from colliding on git push
+concurrency:
+  group: health-check
+  cancel-in-progress: true
 
 jobs:
   check-gemini-api:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Permiso para hacer push
-    
+      contents: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      
+          cache: 'npm' # Caches npm packages to speed up workflow execution
+
       - name: Install dependencies
         run: npm install @google/generative-ai
-      
+
       - name: Run health check
         env:
           GEMINI_API_KEY_FABIAN: ${{ secrets.GEMINI_API_KEY_FABIAN }}
           GEMINI_API_KEY_VICENTE: ${{ secrets.GEMINI_API_KEY_VICENTE }}
         run: node check-health.js
-      
+
       - name: Commit and push results
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add status.json history.json
           git commit -m "🤖 Update health check status [skip ci]" || exit 0
+          git pull --rebase origin main
           git push
-      
+
       - name: Generate Status Report
         if: always()
         run: |
-          FABIAN_FLASH=$(jq -r '.fabian.flash.status' status.json)
-          FABIAN_PRO=$(jq -r '.fabian.pro.status' status.json)
-          VICENTE_FLASH=$(jq -r '.vicente.flash.status' status.json)
-          VICENTE_PRO=$(jq -r '.vicente.pro.status' status.json)
-          
-          echo "## 🤖 Gemini API Health Check Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Fecha:** $(date -u)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 👤 Fabián Muñoz" >> $GITHUB_STEP_SUMMARY
-          echo "- Gemini Flash: $([ "$FABIAN_FLASH" == "online" ] && echo '✅ Disponible' || echo '❌ No disponible')" >> $GITHUB_STEP_SUMMARY
-          echo "- Gemini 2.5 Pro: $([ "$FABIAN_PRO" == "online" ] && echo '✅ Disponible' || echo '❌ No disponible')" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 👤 Vicente Chacón" >> $GITHUB_STEP_SUMMARY
-          echo "- Gemini Flash: $([ "$VICENTE_FLASH" == "online" ] && echo '✅ Disponible' || echo '❌ No disponible')" >> $GITHUB_STEP_SUMMARY
-          echo "- Gemini 2.5 Pro: $([ "$VICENTE_PRO" == "online" ] && echo '✅ Disponible' || echo '❌ No disponible')" >> $GITHUB_STEP_SUMMARY
+          if [ ! -f status.json ]; then
+            echo "❌ Execution failed before status.json could be generated." >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+          FABIAN_FLASH=$(jq -r '.fabian.flash.status // "unknown"' status.json)
+          FABIAN_PRO=$(jq -r '.fabian.pro.status // "unknown"' status.json)
+          VICENTE_FLASH=$(jq -r '.vicente.flash.status // "unknown"' status.json)
+          VICENTE_PRO=$(jq -r '.vicente.pro.status // "unknown"' status.json)
+
+          cat <<EOF >> $GITHUB_STEP_SUMMARY
+          ## 🤖 Gemini API Health Check Report
+
+          **Fecha:** $(date -u)
+
+          ### 👤 Fabián Muñoz
+          - Gemini Flash: $([ "$FABIAN_FLASH" == "online" ] && echo '✅ Disponible' || echo '❌ No disponible')
+          - Gemini 2.5 Pro: $([ "$FABIAN_PRO" == "online" ] && echo '✅ Disponible' || echo '❌ No disponible')
+
+          ### 👤 Vicente Chacón
+          - Gemini Flash: $([ "$VICENTE_FLASH" == "online" ] && echo '✅ Disponible' || echo '❌ No disponible')
+          - Gemini 2.5 Pro: $([ "$VICENTE_PRO" == "online" ] && echo '✅ Disponible' || echo '❌ No disponible')
+          EOF
